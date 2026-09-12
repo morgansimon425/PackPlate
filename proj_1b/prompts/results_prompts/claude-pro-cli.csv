@@ -1,0 +1,510 @@
+prompt_id,category,source,base_starters,new_modules,model,web,response,verdict,seconds,error
+P1,enriched,combination,"[1,3]",PackPlate 4-feature yes/no/unknown matrix; two-model/URL rule inline,claude-pro-cli,on,"## Method note
+
+Everything below is a product I could confirm exists with a live URL. Four products that came up in searching — Bite / Bite+ (the Sodexo vs. Compass naming is genuinely muddled across sources), Fig, HappyCow, Zabihah, Spokin — I left out or demoted: they're either single-diet finders that don't touch campus dining, or I couldn't cleanly confirm which vendor ships which app. I'd rather hand you nine solid rows plus one honest ""unconfirmed"" than ten tidy ones.
+
+## Table 1 — The ten closest
+
+| # | Product | Category | Who uses it | Main strength | Main weakness | Price | Evidence URL |
+|---|---|---|---|---|---|---|---|
+| 1 | **NC State Dining site + Menu & Nutrition Portal** (CBORD NetNutrition) | Official university dining | NC State students/staff | The authoritative source — it *is* the data you plan to scrape; menus + nutrition for every campus unit | Menus/nutrition and hours live in **separate** places (portal vs. site/OnCampus app) since July 28 2025; no multi-person filtering; no busyness | Free | [dining.ncsu.edu](https://dining.ncsu.edu/) · [portal launch notice](https://dining.ncsu.edu/news/dining-menus-no-longer-in-oncampus-app/07-25-2025) (links to `netmenu2.cbord.com/NetNutrition/ncstate-dining`; my direct fetch of that URL hit a redirect loop — verify in a browser) |
+| 2 | **OnCampus (NC State app)** | Campus life app | NC State students | Hours + bus + parking in one native app students already have; filters ""open now / open today"" | **Menus removed July 2025** — hours only; no nutrition, no diet filter, no crowd | Free | [App Store](https://apps.apple.com/us/app/oncampus/id431844600) · [project site](https://sites.google.com/ncsu.edu/oncampus/home) |
+| 3 | **Nutrislice** | Official university dining platform | 100s of universities (App State, UW–Madison, Iowa, Stony Brook, CU Boulder) | Best-in-class allergen + diet filtering (vegetarian, vegan, halal, kosher), 50+ languages, real-time menu updates | Vendor-locked per campus — **NC State is on CBORD, not Nutrislice**; filters one person at a time; no crowd data | Free to students; institution license (pricing not public) | [nutrislice.com](https://nutrislice.com/) · [Stony Brook how-to](https://www.stonybrook.edu/dining/where-to-eat/how-to-use-nutrislice.html) |
+| 4 | **Dine On Campus (Sodexo)** | Official university dining app | Students at Sodexo campuses | Closest functional twin to your core: locations + open/closed + distance + menus + per-item nutrition + HealthKit export | Sodexo campuses only (not NC State); 2.4★ / 270 ratings with crash complaints; no group filter; no crowd | Free | [App Store](https://apps.apple.com/us/app/dine-on-campus/id1170602720) |
+| 5 | **Waitz (Occuspace)** | Crowd / wait-time | Students at Occuspace campuses — **including NC State** | Sensor-based live busyness + next-hour prediction + peak-hour history, no user reporting needed | At NC State it covers **libraries and Carmichael, not dining** (per Occuspace's own case study); zero menu/nutrition data | Free to students; institution buys sensors | [App Store](https://apps.apple.com/us/app/waitz-university/id1346827447) · [NC State case study](https://www.occuspace.com/case-studies/case-study-nc-state-university) |
+| 6 | **Google Maps (Popular Times / Live busyness)** | Restaurant-finder + crowd | Everyone | Already installed; live busyness, typical-hours graphs, wait times, hours, location | Campus dining halls are poorly/inconsistently covered; no menus, no nutrition, no dietary filtering | Free | [Google Maps Help](https://support.google.com/maps/answer/11323117?hl=en) · [Google blog](https://blog.google/products-and-platforms/products/maps/maps101-popular-times-and-live-busyness-information/) |
+| 7 | **SupperSquad** | Other (group dining decision) | Small friend groups | **The only product I found that takes several people's diets at once** — group size + combined allergies, then in-thread iMessage voting | Off-campus restaurants only; iMessage-bound; explicitly ""suggestions, not guarantees""; no nutrition data, no hours, no crowd | Unknown | [App Store](https://apps.apple.com/us/app/suppersquad/id6745744639) |
+| 8 | **Picknic** | Restaurant-finder (special diets) | Celiac / top-8 allergy / veg diners | 58,000 locations with restaurant *policies and procedures*, not just labels | Commercial restaurants only, no campus dining; one diner at a time; no hours/crowd | Free tier; Premium $4.99/mo or $19.99/yr | [picknic.app](https://picknic.app/) |
+| 9 | **MyFitnessPal** | Nutrition tracker | ~everyone tracking macros; **NC State Dining itself promoted it as a nutrition tool** | Protein/macro goal-setting is far deeper than anything you'll build; 14M+ food database | Logging burden; it answers ""what did I eat,"" not ""where should I go now""; no hours, no crowd, no group mode | Free tier; Premium ~$19.99/mo or $79.99/yr, Premium+ $99.99/yr *(third-party 2026 reviews, not verified on MFP's own pricing page)* | [MFP Premium features](https://support.myfitnesspal.com/hc/en-us/articles/360032625951-What-are-the-features-of-MyFitnessPal-Premium) · [NC State Dining adoption](https://campusenterprises.ncsu.edu/2011/08/23/university-dining-utilizes-myfitnesspal-com-as-a-nutrition-tool/) |
+| 10 | **Grubhub Campus Dining** | Other (campus ordering) | NC State students — this is the official ordering app | Already in students' hands with real per-location campus menus and meal-plan payment; free Grubhub+ for students | Ordering-first: no nutrition, no dietary filtering, no dining-hall (all-you-care-to-eat) menus, no busyness | App free (food costs money) | [grubhub.com/about/campus](https://www.grubhub.com/about/campus) · [Grubhub Onsite for campuses](https://onsite.grubhub.com/who-we-serve/college-campuses/) |
+
+## Table 2 — Feature matrix
+
+| Product | (a) Menus + nutrition + hours, one campus | (b) Filters for MULTIPLE people at once | (c) Crowd / busyness | (d) Admits missing data |
+|---|---|---|---|---|
+| 1. NC State Dining + Menu & Nutrition Portal | Yes (but split across two surfaces) | No | No | Unknown |
+| 2. OnCampus (NC State) | No — hours only | No | No | Unknown |
+| 3. Nutrislice | Yes | No | No | Unknown |
+| 4. Dine On Campus (Sodexo) | Yes | No | No | Unknown |
+| 5. Waitz (Occuspace) | No | No | Yes | Unknown |
+| 6. Google Maps | No | No | Yes | **Yes** |
+| 7. SupperSquad | No | **Yes** | No | Yes (blanket disclaimer) |
+| 8. Picknic | No | Unknown | No | Unknown |
+| 9. MyFitnessPal | No | No | No | Unknown |
+| 10. Grubhub Campus | No | No | No | Unknown |
+
+**Cell notes (why I didn't round up):**
+- **1(a)** — ""Yes, split"": the portal has menus + nutrition, hours are on the dining site and OnCampus app. That split is exactly the seam you're exploiting.
+- **6(d) Yes** — Google documents that when it lacks enough data for an accurate anonymous busyness estimate, *it doesn't publish one*. That's a genuine ""we don't know"" behavior, not an inference on my part.
+- **7(d) Yes, qualified** — SupperSquad's own guidance says it ""provides suggestions, not guarantees"" and to confirm with restaurants. That's a global disclaimer, not per-field provenance. Your per-item ""this data is missing"" is still differentiated.
+- **8(b) Unknown** — Picknic's site simply doesn't address multi-person filtering. I'm not going to guess either way.
+- **10(c)** — Grubhub shows estimated pickup times, which is wait-adjacent, but I found no evidence of location busyness. Marked No.
+- Every ""Unknown"" in column (d) means the same thing: these products don't publish a data-completeness policy, and I couldn't verify their in-product behavior without institutional logins.
+
+## What the matrix tells you, given one month and ~160 person-hours
+
+**No product in this set does (a) + (b) together, and nothing does (b) at all except an off-campus iMessage extension.** Multi-person diet filtering over one campus's menus is a real, unoccupied cell. That's your wedge — build it first and build it well.
+
+Two warnings the table surfaces:
+
+1. **Waitz is already on NC State's campus**, just not in dining. If Occuspace expands to dining halls, your crowd feature evaporates overnight — and their sensor data beats crowdsourced reports. Treat crowd-reporting as your *third* priority, not your second. It's also the feature most likely to be empty at demo time, since it needs users you won't have yet.
+2. **Your data source is CBORD NetNutrition**, not a friendly API. My fetch of the portal URL hit a redirect loop, which is a mild signal that it's session/JS-heavy. Spend a few hours in week one proving you can extract menus and nutrition reliably before you commit to anything else — if that ingestion doesn't work, features 2 through 10 don't matter.
+
+Column (d) is your cheapest differentiator: nobody in this table does explicit per-field ""we don't have this."" It costs you almost nothing in engineering and it's the most defensible claim in your pitch.
+
+**Sources:** [NC State Dining](https://dining.ncsu.edu/) · [Portal launch notice](https://dining.ncsu.edu/news/dining-menus-no-longer-in-oncampus-app/07-25-2025) · [OnCampus app](https://apps.apple.com/us/app/oncampus/id431844600) · [Nutrislice](https://nutrislice.com/) · [Stony Brook Nutrislice guide](https://www.stonybrook.edu/dining/where-to-eat/how-to-use-nutrislice.html) · [Dine On Campus](https://apps.apple.com/us/app/dine-on-campus/id1170602720) · [Waitz](https://apps.apple.com/us/app/waitz-university/id1346827447) · [Occuspace NC State case study](https://www.occuspace.com/case-studies/case-study-nc-state-university) · [Google Maps busyness](https://support.google.com/maps/answer/11323117?hl=en) · [Google Maps 101 blog](https://blog.google/products-and-platforms/products/maps/maps101-popular-times-and-live-busyness-information/) · [SupperSquad](https://apps.apple.com/us/app/suppersquad/id6745744639) · [Picknic](https://picknic.app/) · [MyFitnessPal Premium](https://support.myfitnesspal.com/hc/en-us/articles/360032625951-What-are-the-features-of-MyFitnessPal-Premium) · [NC State + MyFitnessPal](https://campusenterprises.ncsu.edu/2011/08/23/university-dining-utilizes-myfitnesspal-com-as-a-nutrition-tool/) · [Grubhub Campus](https://www.grubhub.com/about/campus) · [Grubhub Onsite](https://onsite.grubhub.com/who-we-serve/college-campuses/)",,222.2,
+P2,enriched,combination,"[7,2]",,claude-pro-cli,,,"N/A - not runnable, see source",,
+P3,enriched,combination,"[8,5]",M0 measurable-claim requirement (metric + baseline + threshold),claude-pro-cli,off,"## Part 1 — Three candidate missions
+
+### Mission A — the group problem
+
+A student on a meal plan checks one page for hours, a second for tonight's menu, and a third for nutrition, and still cannot tell which hall works for all three people in the group chat. PackPlate puts the hours, menus, and nutrition NC State Dining publishes for every campus location into a single view. Its group mode stacks several people's constraints at once — one peanut allergy, one halal diet, one 40-gram protein target — and returns the halls serving something for each of them tonight, with per-person dish counts rather than a single yes/no verdict. In a stopwatch test with fifteen groups of three, the time to agree on where to eat falls from a measured baseline of roughly six minutes of tab-switching and texting to under ninety seconds. Where Dining publishes no allergen data, PackPlate shows a gray ""not labeled by NC State"" marker instead of a green check, because the honest thing to report is what the university published, not whether a dish is safe.
+
+- **Not copy-pasteable:** per-person dish counts in group mode — it requires modeling three diets against one menu simultaneously, not filtering one list three times.
+- **How four of us prove it in a week:** recruit 15 triads in Talley, run each twice (once with the dining site, once with PackPlate), record both with a stopwatch, report medians.
+
+### Mission B — the allergen search problem
+
+NC State labels allergens on some dishes and leaves others blank, and the dining site offers no way to search a menu by what you cannot eat. PackPlate ingests every published dish at every campus location each morning and makes those labels filterable by allergy, halal preference, vegetarian diet, and protein target. Each dish carries exactly one of three states — listed as containing, listed as free of, or not labeled by NC State — and the third state is displayed as prominently as the other two, alongside the fetch timestamp and a link to the page it came from. A student avoiding peanuts goes from opening every location page by hand, roughly nine page loads and four minutes to answer ""what can I eat right now,"" to one filtered list in under fifteen seconds. Because the university does not guarantee its labels are complete, PackPlate reports coverage rather than safety, and sends anyone who needs a real answer to the Dining dietitian.
+
+- **Not copy-pasteable:** the three-state dish model where ""unlabeled"" is a first-class, visible state carrying its own source link and timestamp — most menu apps collapse unlabeled into ""safe"" by omission.
+- **How four of us prove it in a week:** time ten students doing the peanut task on the live dining site, then on PackPlate; count page loads from browser history.
+
+### Mission C — the crowd problem
+
+At 12:15 on a Tuesday a meal-plan student walks to Fountain, sees the line doubling back past the entrance, and eats a granola bar in the library instead. PackPlate shows the hours, menus, and nutrition NC State Dining publishes for every location, and adds the one thing the university does not publish: how busy each place is right now. Crowd levels come from students standing in the line — one tap for empty, normal, or packed — and a report expires after thirty minutes, so the app goes quiet rather than confident when nobody has checked in. Across fifty logged lunch trips in one week, the level PackPlate displays matches what the tester finds on arrival more than eighty percent of the time, against the thirty-three percent a three-way guess would give. Nothing in the app claims a dish is safe or a hall is fast — it reports what NC State published and what other students just saw, and flags the gaps in both.
+
+- **Not copy-pasteable:** a live crowd signal for NC State halls only exists if students on that campus are tapping it; a competitor can clone the UI and still show an empty map.
+- **How four of us prove it in a week:** each teammate logs ~13 trips, recording the displayed level before walking and the observed level on arrival; accuracy is a confusion matrix against a uniform-random baseline.
+
+**One flag before you pick:** the baselines in A and B (""six minutes,"" ""four minutes"") are estimates right now. Measure them in week one before the UI exists, or the SO WHAT is unprovable by construction.
+
+## Part 2 — Stakeholders
+
+| Stakeholder | What they fear | One design decision that wins them over |
+|---|---|---|
+| On-campus meal-plan student (primary user) | Walking ten minutes to a hall that just closed or has nothing they'll eat | Every location card shows a live ""closes in 22 min"" countdown and dims locations that close before you could walk there |
+| **Maya Alvarez, first-year with an anaphylactic peanut allergy** (the person harmed if we're wrong) | A green checkmark on a dish NC State never actually labeled | No ""safe"" state exists in the product — only ""NC State lists no peanut,"" ""NC State lists peanut,"" and ""NC State has not labeled this dish,"" each with the source URL and fetch time |
+| Halal-observing students / MSA | A wrong halal tag causing someone to eat haram | Halal appears only where NC State itself publishes the designation, worded ""NC State lists this as halal"" — never inferred from an ingredient list |
+| Group of friends with clashing diets | The same person always being the one who compromises | Group mode shows per-person dish counts side by side, so an unfair pick is visible instead of hidden behind one ""match"" badge |
+| NC State Dining (data owner) | Being scraped hard, quoted out of date, or blamed for a student's reaction | One scheduled fetch per menu per day, cached, with a User-Agent naming the project and a contact email; every dish links back to dining.ncsu.edu with ""as published at ⟨timestamp⟩"" |
+| NC State Dining registered dietitian | Students treating an app as clinical advice and skipping consultations | Every allergen-filtered result carries a one-line disclaimer and a link to book a dietitian consultation; the app never answers ""is this safe for me"" |
+| Dining hall manager / line staff | ""Packed"" emptying their hall, or crowd data becoming a staffing performance metric | Reports expire after 30 minutes, only three coarse buckets are shown, and no per-hall history is stored, charted, or exported |
+| Students who submit crowd reports | Being tracked, or spammed with prompts | One tap, no login, anonymous device token, and we store only hall + bucket + timestamp — no GPS trace |
+| Bad-faith reporter (adversarial stakeholder) | Nothing — the design has to beat them | A displayed level requires ≥2 independent reports within 30 minutes; a lone report renders as ""1 report"" and does not move the badge |
+| NC State Office of General Counsel / brand (who gets sued) | An allergy incident attributed to ""the NC State app,"" plus trademark confusion | Named PackPlate, with a persistent ""unaffiliated student project"" banner and interface copy stating it republishes NC State's published data and makes no safety determination |
+| NC State OIT / security | Credential handling, ToS violation, scraping abuse | No Unity ID login, no meal-plan balance, publicly reachable pages only, robots.txt respected, request rate documented in the README |
+| Whoever pays the bill (the four of us, out of pocket) | A cloud bill that outlives the semester | One FastAPI container + one small Postgres + a cron ingest — no always-on scraper, flat near-zero cost, and it can be switched off without losing data |
+| The teammate paged at 3 a.m. when ingest breaks | A silent failure serving Tuesday's menu on Friday | The app fails loud: if the last successful ingest is over 24 hours old, every menu carries a stale banner instead of rendering as current, and each cron run writes a row so diagnosis is one query |
+| CSC 510 course staff / graders | An ungradeable demo that dies because dining.ncsu.edu is down at 9 a.m. | pytest runs against a checked-in fixture snapshot of the Dining HTML/JSON, and the demo can run entirely offline from the same fixtures |
+| Next semester's team inheriting the repo | Cloning it and getting an empty, unrunnable app | `docker compose up` seeds the fixture dataset, so one command yields a working app with real-shaped data |
+| Screen-reader and colorblind users (Disability Resource Office) | Status encoded only as a red/green dot | Crowd level and allergen state are text + icon, never color alone, and all filters are keyboard-navigable |",,120.4,
+P4,enriched,combination,"[9,6]",data-dependency stress test,claude-pro-cli,off,"## Part 1 — Data risk
+
+**Scale:** likelihood/impact = H / M / L. ""Buildable in one month"" means it fits inside the 160 person-hour budget alongside the features.
+
+### Legal status, stated honestly
+
+| Source | Status |
+|---|---|
+| `dining.ncsu.edu` robots.txt | As you state it: disallows only `/wp-admin/`, permits the rest. **Re-verify and screenshot it on the day you start** — robots.txt is not a contract but it is the evidence you'd point to. |
+| `netmenu2.cbord.com` robots.txt | **MUST CHECK** |
+| CBORD / NetNutrition terms of use | **MUST CHECK.** This is the one that matters. NetNutrition is vendor software, not university content; NC State's permissions do not extend to it. |
+| FoodFinder API usage terms | Informal — the authors invite reuse, asking for a distinct User-Agent and respect for `Cache-Control`. That's a stated permission from the operators, which is more than you have for CBORD. **MUST CHECK** the repo's `LICENSE` file separately; permission to call an API is not a license to reuse scraper code. |
+| NC State name/trademark use in a student app | **MUST CHECK** (university brand guidelines). Low risk, cheap to check. |
+| NC State allergen disclaimer | Cited as given: NC State states it cannot guarantee every allergen is identified and labeled, and marks some items ""Not Analyzed."" **This is a fact about the data, not a caveat you can engineer away.** |
+
+### Risk table
+
+| Risk | L | I | How we'd detect it | Mitigation buildable this month |
+|---|---|---|---|---|
+| **Source layout changes** (NetNutrition DOM/endpoint shape shifts) | **H** | **H** | Schema-contract test on every run: assert expected field names, non-zero row count, ≥N locations, ≥M items/location. Fail loud, don't fail empty. | Archive the **raw response bytes** to dated storage *before* parsing. Parser reads from the archive, so a break is a re-parse of stored data, not a lost day. Pin the parser behind one module with a fixture-based test suite. |
+| **Data stale or silently wrong** (cron dies, 2am job 500s, we serve last week's menu as today's) | **H** | **H** | Every row carries `fetched_at` + `menu_date` + `source`. A freshness check runs on read, not just on write. Alert (email/Discord webhook) if newest row > 26h old. | Surface `as_of` in the UI on every screen. A stale-data banner over an accurate timestamp is cheap; a confidently wrong menu is the failure that ends the project. ~4 hrs. |
+| **Data incomplete — missing/unlabeled allergens** | **H** | **H** | The hand-labelled golden set (already in your NOW plan) — measure *recall on allergens*, not accuracy. Count `NOT_ANALYZED` items per day as a tracked metric. | The three-state result is the mitigation, and it must be the **default** for anything unproven: unknown → `DATA_INCOMPLETE`, never → `FITS`. Ship NC State's own disclaimer text verbatim next to any allergen result. |
+| **Terms of use forbid scraping** (CBORD) | **M** | **H** | Read them, week 1. Also watch for 403s/CAPTCHA/IP blocks — that's a ToU signal delivered by a server. | Build the ingestion layer behind a **source interface** with two implementations from day one: `FoodFinderApiSource` and `NetNutritionScraperSource`. If CBORD's terms say no, flip a config flag to the API (whose operators invited reuse) instead of rewriting the app. ~6 hrs extra vs. hardcoding one. |
+| **A field we rely on disappears** (calories gone; allergen flags collapse to a free-text string) | **M** | **H** | Same contract test as row 1, but per-field: a `required_fields` list checked every run, plus a nightly diff of the *field name set* vs. yesterday. | Store what you fetched, not just what you parsed — the raw archive means a vanished field is detectable historically. Degrade per-field: losing calories should disable a nutrition column, not the filter. |
+| **FoodFinder API goes away / rate-limits / drifts** (student club project, no SLA) | **M** | **M** | Uptime ping in the same job that checks freshness. Response-shape contract test. | The dual-source interface above. Cache everything locally in your own DB — never call their API on the user's request path. Send a distinct User-Agent and honor `Cache-Control` as they asked; being a good citizen is the cheapest availability insurance you have. |
+| **FoodFinder doesn't carry full nutrition, or collapses ""no allergen"" vs ""never analysed""** (your own UNVERIFIED) | **M** | **H** | **Resolvable in 30 minutes.** `curl` the menu-items route, inspect one known ""Not Analyzed"" item and one known allergen-free item. | **Do this before writing any other code.** If the distinction is lost, the API becomes hours-only and you must scrape NetNutrition for menus — which changes the legal question, the effort estimate, and possibly the feature set. This is a week-1 blocking spike, not a task. |
+| **Rate-limit / IP block from CBORD** | M | M | Non-200 rate tracked per run; any 403/429 alerts. | One request/day, off-peak, one connection, distinct identifying User-Agent with a contact address. Never retry a 403. |
+| **We can't reproduce a bug because the source already changed** | H | M | Bug reports that don't reproduce. | The raw archive again. It is the single highest-leverage 6 hours in this plan. |
+| **A user with a real allergy trusts our output** | L | **H** | Not detectable after the fact. This is a design decision, not a monitoring problem. | Fail-closed tri-state + NC State's disclaimer + no marketing claim of allergen safety. Write this into the README as a project constraint so a future teammate can't quietly ""fix"" the unknown-state default. |
+
+### The single biggest point of failure
+
+**Every path you have leads to NetNutrition.** FoodFinder is not a second source — it is a *cache of the same source*, scraped once daily by another team. If NetNutrition changes its layout or access rules, your scraper and your fallback API break in the same week, because they break for the same reason.
+
+You already have the evidence that this happens: in July 2025 NC State's own app team disabled menus, nutrition, HealthKit and the food journal in OnCampus because the data wasn't available from the new dining software. A funded, credentialed, internal team lost this data for months. You have four people and four weeks.
+
+**Smallest thing to build this month to survive it — roughly one long day, ~8 hours:**
+
+**Snapshot-first ingestion with last-known-good serving.**
+
+1. The scheduled job's *first* action is to write the raw, unparsed response to immutable dated storage (`snapshots/2026-09-12T02:00Z/netnutrition-*.json`). Committed to the repo or object storage — either is fine at this size.
+2. Parsing is a separate step that reads from that snapshot. It never touches the network.
+3. If parsing or the contract test fails, the previous good dataset **stays served**. The app never goes blank and never half-updates.
+4. Every record carries `as_of` and `source`, and the UI shows it.
+
+That one mechanism covers five rows of the table at once: it survives layout changes (re-parse history), silent staleness (visible `as_of`), source disappearance (you keep months of data), unreproducible bugs (you have the input), and a mid-demo outage the day of Project 3 grading. It's also the piece none of you has built before, which is exactly why it should be week 1, not week 3.
+
+---
+
+## Part 2 — Milestones
+
+**Budget:** 4 × 10 × 4 = **160 person-hours**, minus coordination, writeups, and the demo. Plan against **~120 productive hours**. Every estimate below is person-hours.
+
+### BEFORE (Project 1a — delivered)
+
+Not forecast, so not classified. One note: the harness that runs the same prompts across several models, and the finding that an allergen check was never enforced server-side, are the strongest assets you're carrying forward. **Reuse the finding directly** — enforce your own filter server-side and write the regression test that the audited app didn't have. That's a two-hour task that turns Project 1a into evidence rather than history.
+
+### NOW (this month)
+
+| Milestone | Verdict | Est. | Test — and is one specified? |
+|---|---|---|---|
+| **Ingest hours + menus on a schedule** | **REALISTIC** — but it's the item none of you has done, and it gates everything else. Start week 1. | 35–45 | **MISSING in your draft.** Needs: (a) parser contract test against archived fixtures; (b) a freshness assertion that fails the build if data > 26h old; (c) a deliberately-broken-source test proving last-known-good still serves. |
+| **Dietary filter, tri-state (fits / conflicts / data incomplete)** | **REALISTIC** — and it is your actual differentiator. | 20–25 | Specified (hand-labelled set). Add an explicit **fail-closed unit test**: an item with a null allergen field must return `DATA_INCOMPLETE`, never `FITS`. |
+| **Multi-person filtering → locations where everyone has an option** | **REALISTIC** — cheap once the single-person filter exists; it's a set intersection over the same predicate. | 8–12 | **MISSING.** Cheap and strong: property tests on invariants. A group of one returns exactly the single-person result; adding a person never *increases* the location set (monotonicity); one person with `DATA_INCOMPLETE` must not silently promote a location to ""everyone's fine."" |
+| **Student crowd reporting** | **STRETCH** | 15–30 (unbounded as written) | **MISSING, and partly untestable** — see below. |
+| **Test filter against hand-labelled menu items** | **REALISTIC** — this is the test for row 2, not a separate milestone. Budget it as real work: 120–150 items, 4 people, ~3 hrs each including adjudicating disagreements. | 12–15 | It *is* the test. Commit it as a fixture file in the repo with a documented labeling rubric, so the numbers are reproducible by a grader. |
+
+**Why crowd reporting is STRETCH:** it isn't a data problem, it's a people problem. The build is small; the parts that make it *work* — enough users to produce signal, abuse control, identity/dedup — cannot be delivered or tested in four weeks with no user base. You can ship the endpoint and still have nothing to show.
+
+**Largest realistic slice:** one-tap ""how busy is it now?"" (3 buckets), anonymous, rate-limited by device token, decaying over a 45-minute window, displaying **""not enough reports""** below a threshold — the same tri-state honesty as the allergen feature. Test the aggregation and decay math against synthetic report streams, not against adoption. **8–10 hrs, fully testable.** This also plants the timestamped history that FUTURE row 3 depends on, which is the real reason to build it now.
+
+**Total at the trimmed scope: ~90–105 hrs.** That fits, with room for the week-1 FoodFinder spike and the thing that will go wrong. The un-trimmed version does not.
+
+### FUTURE (Project 3)
+
+| Milestone | Verdict | Largest REALISTIC slice |
+|---|---|---|
+| **Class schedules → suggest where to eat in a gap** | **STRETCH**, tipping to FANTASY if it means MyPack/SSO integration. University SSO access is not obtainable by a student team on a course timeline. | **.ics file upload or paste.** User exports their schedule (MUST CHECK whether NC State's system exports .ics), you parse it locally, find gaps ≥40 min, intersect with dining hours. No auth, no institutional integration, no PII stored server-side. Testable against fixture .ics files. Genuinely realistic. |
+| **Coordinate pickup or delivery between students** | **FANTASY.** Two-sided marketplace, stranger matching, payments, food-safety liability, and a cold-start problem — any one of those is a semester. | **A shareable group link.** Someone picks filters for their group, gets a URL, sends it to friends who already know each other. No accounts, no money, no delivery, no strangers. It's a serialized query string on top of NOW row 3 — a few hours — and it's the only part that actually gets used. |
+| **Predict busy periods from accumulated history** | **FANTASY** *for Project 3 specifically* — not because prediction is hard, but because you will have no history. A model trained on a few weeks of sparse reports from a handful of users predicts nothing, and you cannot honestly evaluate it. | **Historical averages, no ML.** Bucket crowd reports by (location, day-of-week, 30-min slot), show the mean once a bucket has ≥N reports, show ""not enough data"" otherwise. Evaluable by holdout: does last week's average predict this week's reports better than chance? That's a real, reportable result. The prerequisite is starting collection *this month* — which is the argument for keeping the trimmed crowd-reporting slice. |
+| **Native mobile app** | **FANTASY.** Two platforms or a cross-platform framework none of you named, plus store review, plus a build pipeline — with zero new user-facing value over the web app. | **Installable PWA**: manifest, icons, offline shell serving the last cached menu. Installs to the home screen, works on the dining-hall wifi dead zone, no store. Half a day on the Next.js stack you already know. Test with Lighthouse's installability audit and an airplane-mode check. |
+
+### Two things to fix in the draft
+
+1. **Four of five NOW milestones have no test.** Only the filter does. Ingestion is the item most likely to break silently and it has no acceptance criterion at all — write one now, in the form ""a fresh clone, given a recorded snapshot, produces the expected N locations and M items, and a corrupted snapshot leaves the previous dataset served.""
+2. **""Ingest on a schedule"" is doing a lot of quiet work.** Split it into: (a) the FoodFinder capability spike, ~½ day, blocking; (b) the snapshot + last-known-good layer, ~1 day; (c) the parser and schema; (d) the scheduler and alerting. Four trackable things instead of one item that's 80% done for three weeks.",,128.5,
+P5,enriched,enriched,[4],"PackPlate-exposure focus (allergen labeling, scraping ToU, data-protection)",claude-pro-cli,on,"## Reading budget first, because it decides everything
+
+You have ~160 person-hours total for build *and* test. A defensible reading allocation is **10–14 person-hours (~7%)**, split across four people. So I've costed every MUST-READ, and the MUST tier below sums to roughly that. Anything that can't fit is in the **Out of budget** section at the end rather than dishonestly listed as a must.
+
+One thing I verified that changes the calculus in your favor: the DOJ Title II web deadline moved. More on that in §4.
+
+---
+
+## 1. Food-allergen labeling and liability
+
+**MUST-READ — NC State Dining, ""Special Dietary Needs"" and ""Nutrition Programs""** (dining.ncsu.edu/nutrition/special-dietary-needs, /nutrition/nutrition-programs/) — *~45 min.*
+Defines the exact allergen vocabulary your filter must mirror: NC State marks the **nine** major allergens (dairy, gluten, eggs, fish, shellfish, tree nuts, peanuts, soy, sesame) **plus a separate pork/pork-derivative label**.
+→ **Design change:** your enum is not ""the FDA big 9."" It's NC State's 9 + pork, and pork is what your halal filter should key off — not an inferred ingredient match. Also note the ""Simply Made"" top-9-free station, which is a first-class entity in your data model, not just another menu item.
+
+**MUST-READ — FDA Food Code 2022, §2-103.11(M) and §3-602.11** (fda.gov/food/fda-food-code) — *~40 min, read only those two sections.*
+Places the legal duty to know and disclose allergen ingredients on the **person in charge** at the establishment, not on a third-party aggregator.
+→ **Design change:** this is the strongest argument that PackPlate is an *advisory index*, and it tells you exactly what your disclaimer should point users toward (""confirm with the station manager"").
+
+**MUST-READ — NC Food Code Manual, 15A NCAC 18A .2600** (ncleg.gov / NCDHHS Environmental Health) — *~20 min, skim for the deltas.*
+NC adopts the FDA Food Code with state amendments; this is the law that actually binds the dining halls you're scraping.
+→ Cite it to show you identified the *governing* instrument, not just the federal model.
+
+**MUST-READ — DOJ settlement, *United States v. Lesley University* (DJ #202-36-231, Dec. 2012) + the DOJ Q&A page** (justice.gov press release; archive.ada.gov/q&a_lesley_university.htm) — *~30 min.*
+Establishes that celiac disease and severe food allergies are **disabilities under the ADA** and that a university dining program must make reasonable modifications.
+→ **Design change:** reframes PackPlate from ""convenience app"" to something adjacent to a disability accommodation, which raises the bar on both accuracy claims and accessibility. This is your single best liability-framing citation.
+
+**SHOULD-READ — FALCPA (Pub. L. 108-282, Title II) and the FASTER Act of 2021** (fda.gov, ""Food Allergies"" hub).
+Governs *packaged* food labeling and added sesame as the 9th allergen effective Jan 1, 2023.
+→ Worth knowing mainly for the **negative** finding: FALCPA does **not** reach restaurant/foodservice menus, so there is no federal labeling standard behind the menu text you scrape. Say that out loud in the report.
+
+**SHOULD-READ — FDA menu labeling rule, 21 CFR 101.11** + ""A Labeling Guide for Restaurants and Retail Establishments… Part II.""
+Sets the calorie-disclosure regime for chains with 20+ locations.
+→ University dining is generally outside it, which explains why nutrition fields may be incomplete or inconsistent across stations — a data-quality assumption you should state rather than discover in week 3.
+
+**SHOULD-READ — Restatement (Second) of Torts §311, ""Negligent Misrepresentation Involving Risk of Physical Harm.""**
+The actual theory under which a wrong ""peanut-free"" badge becomes a tort, not a bug.
+→ **Design change:** argues for *asymmetric failure* — on missing/ambiguous data, show ""unknown,"" never ""safe."" One paragraph in your design rationale.
+
+**SKIM — FARE (Food Allergy Research & Education) college resources; FAACT ""College & University Food Services.""**
+Community-standard expectations for campus dining tools; useful for requirements elicitation, not compliance.
+
+**SHOULD-READ — IFANCA halal certification standards (ifanca.org) or the halal criteria your campus vendor uses.**
+Touches the halal filter directly.
+→ **Design change:** halal is a **certification claim**, not an ingredient computation. Never derive it from ""no pork + no alcohol."" Pass through the operator's claim verbatim or render ""not certified."" Same logic for vegetarian/vegan, which have no FDA definition at all.
+
+---
+
+## 2. Terms of use and robots policy for the pages you scrape
+
+**MUST-READ — `https://dining.ncsu.edu/robots.txt`** — *~5 min. I already fetched it for you.* Current contents:
+```
+User-agent: *
+Disallow: /wp-admin/
+Allow: /wp-admin/admin-ajax.php
+Sitemap: https://dining.ncsu.edu/wp-sitemap.xml
+```
+→ **Design change:** menus at `/location/<hall>/?date=YYYY-MM-DD` are **not disallowed**, and there's a sitemap. You're clear to crawl, and you have a legitimate URL pattern for date-parameterized fetches. Screenshot this into the report — it's cheap, concrete evidence of diligence. **Caveat:** re-check before you ship, and if the nutrition kiosk data comes from a different host (NetNutrition/CBORD or Epicure Digital), that host has its own robots.txt and its own terms. Check each origin you touch.
+
+**MUST-READ — RFC 9309, ""Robots Exclusion Protocol""** (rfc-editor.org/rfc/rfc9309) — *~20 min.*
+The 2022 standardized parsing rules for the file above.
+→ **Design change:** gives you defensible crawler behavior — honor caching, send a descriptive `User-Agent` with a contact address, rate-limit. A polite scraper is a design requirement, not a nicety.
+
+**MUST-READ — NC State POL 08.00.01 and REG 08.00.02, ""Use of IT Resources""** (policies.ncsu.edu) — *~30 min.*
+Governs what you may do with university systems and networks, including automated access.
+→ This is the policy you'd actually be sanctioned under — far more realistically than any federal statute.
+
+**SHOULD-READ — *hiQ Labs v. LinkedIn*, 31 F.4th 1180 (9th Cir. 2022) and *Van Buren v. United States*, 593 U.S. 374 (2021).**
+Scraping publicly accessible pages generally isn't CFAA ""unauthorized access.""
+→ Two-paragraph summaries suffice; they support your legal-risk section without a statute deep-dive. Note the 9th Circuit isn't binding in NC.
+
+**SHOULD-READ — N.C.G.S. §14-454 and §14-458 (computer trespass).**
+The state-law analogue that *is* binding in NC.
+
+**SKIM — *Feist Publications v. Rural Telephone Service*, 499 U.S. 340 (1991).**
+Facts aren't copyrightable but original selection/arrangement of a compilation is.
+→ Relevant to whether you may redistribute scraped menus — copy the facts, not the page.
+
+**SKIM — dining.ncsu.edu site terms / NC State web terms of use.**
+Check whether any ToS contradicts the permissive robots.txt; if it does, ToS wins for your purposes.
+
+---
+
+## 3. Data protection for stored user constraints
+
+**MUST-READ — NC State Data Management Framework, data classification** (cybersecurity.ncsu.edu/data-management/data-management-framework/) — *~30 min.*
+Classifies university data green/yellow/red/purple and dictates approved storage.
+→ **Design change, and the biggest one in this whole list:** a stored allergy profile is health information about an identifiable student. Under this framework it is *not* green. The cheapest compliant design is **no accounts, no server-side profile** — keep constraints in `localStorage` and pass them as query params. That removes FERPA, breach notification, and most of your security surface in one decision. Make this call in week 1; retrofitting it in week 4 is painful.
+
+**MUST-READ — FERPA, 34 CFR Part 99 (the definition of ""education record,"" §99.3)** — *~25 min.*
+Applies the moment you authenticate via NC State SSO/Shibboleth and associate data with a student identity.
+→ **Design change:** it's a direct argument *against* adding campus SSO for a one-month project. Cite it as a rejected alternative.
+
+**SHOULD-READ — GDPR Art. 9 and Recital 35** (gdpr-info.eu).
+Treats health data, explicitly including allergy information, as a special category needing explicit consent.
+→ Even if you're out of scope, this is the clearest published articulation of *why* allergy data is sensitive. Use it as the normative frame; don't claim GDPR compliance.
+
+**SHOULD-READ — NIST SP 800-122, ""Guide to Protecting the Confidentiality of PII""** (§§3–4 only).
+Practical, free, and gives you a defensible minimization and retention policy in about six pages.
+
+**SHOULD-READ — NC State IRB / Office of Research Compliance, ""Do I Need IRB Approval?""** (research.ncsu.edu) — *~20 min, do this in week 1.*
+Touches the **testing** half of your month: recruiting students for usability sessions may be human-subjects research.
+→ **Schedule risk:** classroom-only evaluation is usually exempt, but if you intend to publish or present results beyond the course, you need a determination — and that takes calendar time you don't have. Resolve it on day 3, not day 20.
+
+**SHOULD-READ — N.C.G.S. §75-65 (NC Identity Theft Protection Act, breach notification).**
+Defines your obligation if the thing you chose to store leaks. Reinforces the ""don't store it"" design.
+
+**SKIM — HIPAA, 45 CFR §160.103 (definition of ""covered entity"").**
+Valuable precisely as a *negative* finding: PackPlate is almost certainly not a covered entity. Say so, with the cite, so a reader doesn't assume you missed it.
+
+**SKIM — OWASP Top 10 (2021) and the OWASP Cheat Sheet Series.**
+If you do end up with a server-side store, this is the minimum bar.
+
+**SKIM — CCPA/CPRA and the state comprehensive-privacy-law landscape.**
+NC has no comprehensive consumer privacy statute; one sentence in the report, no more.
+
+---
+
+## 4. Accessibility (WCAG / ADA)
+
+**MUST-READ — DOJ Title II web rule, 28 CFR Part 35 Subpart H (ada.gov/assets/pdfs/web-rule.pdf) AND the April 2026 extension (91 FR, Fed. Reg. doc. 2026-07663)** — *~35 min.*
+Adopts **WCAG 2.1 Level AA** as the binding technical standard for public entities' web content — NC State included.
+→ **Timeline update you need:** DOJ published an extension on April 20, 2026. The compliance date for entities serving populations ≥50,000 moved from April 24, 2026 to **April 26, 2027**; smaller entities/special districts moved to April 26, 2028. The substantive requirements are unchanged. So the deadline has **not** passed — it's ~7 months out. Don't cite the old April 2026 date; a lot of secondary sources still do.
+
+**MUST-READ — WCAG 2.2 ""How to Meet WCAG"" Quick Reference, filtered to Level AA** (w3.org/WAI/WCAG22/quickref/) — *~1 hr, not the full spec.*
+Prioritize **1.4.1 Use of Color**, 1.3.1 Info and Relationships, 1.4.3 Contrast, 2.4.7 Focus Visible, 4.1.2 Name/Role/Value.
+→ **Design change, and the one most likely to alter your UI:** 1.4.1 forbids conveying ""contains peanut"" by a red dot alone. Every allergen indicator needs text or an icon with an accessible name. That's a component-level decision — make it before you build the menu card, not after.
+
+**MUST-READ — NC State REG 04.25.05, ""Information and Communication Technology Accessibility""** (policies.ncsu.edu/regulation/reg-04-25-05) — *~20 min.*
+NC State's own binding ICT accessibility regulation, revised October 2025 to track the federal mandate.
+→ **Design change:** if PackPlate is ever linked from an `ncsu.edu` page or pitched to Campus Enterprises, this is the standard it's held to. It's also the most *citable* accessibility source for an NC State audience.
+
+**SHOULD-READ — W3C ARIA Authoring Practices Guide (APG), patterns for Checkbox, Combobox, and Disclosure** (w3.org/WAI/ARIA/apg/patterns/).
+Directly implements your allergen/diet filter panel.
+→ Highest actionability-per-minute item in this entire list — copy the keyboard interaction tables straight into your component specs.
+
+**SHOULD-READ — Section 504, Rehabilitation Act (29 U.S.C. §794) and 34 CFR Part 104.**
+Applies to NC State as a federal-funds recipient and connects the allergy/disability thread from §1 to the accessibility thread here.
+
+**SKIM (use, don't read) — WebAIM WAVE and Deque axe DevTools.**
+Budget one 2-hour audit pass in week 3. Automated tools catch ~30–40% of issues; add a keyboard-only walkthrough of the filter flow, which is free and catches most of the rest.
+
+**SKIM — WebAIM ""Contrast Checker"" + the WebAIM Million report.**
+Gives you a baseline to compare against in your evaluation section.
+
+---
+
+## 5. Dependency licenses
+
+**MUST-READ — run `pip-licenses` (Python) and/or `license-checker` (Node), then read only the non-permissive hits** — *~30 min including the run.*
+→ **Design change:** this is a 10-minute command that produces a real artifact for your report. Flag anything **GPL-3.0, AGPL-3.0, SSPL, BUSL, or CC BY-NC**.
+
+**MUST-READ — GNU AGPL-3.0 FAQ, the ""network use is distribution"" question** (gnu.org/licenses/gpl-faq.html) — *~15 min, only if the audit above finds an AGPL dependency.*
+A single AGPL component in a hosted web app can obligate you to offer source to every user.
+→ Usually the right move is swap the dependency, not comply.
+
+**MUST-READ — terms of whichever nutrition data source you use.** *~20 min.*
+USDA **FoodData Central** / api.data.gov (public domain, rate-limited, attribution requested) vs. **Nutritionix / Edamam / Spoonacular** (commercial ToS that frequently **prohibit caching or storing** results).
+→ **Design change:** if you pick a commercial API with a no-cache clause, your entire ""ingest and store nutrition"" architecture is non-compliant. Check this before you write the ingest pipeline. USDA FDC is the safe default for a student project.
+
+**SHOULD-READ — SPDX License List (spdx.org/licenses/) and the Open Food Facts ODbL terms.**
+SPDX gives you canonical identifiers for the report's dependency table; ODbL's **database share-alike** is a real trap if you pull from Open Food Facts.
+
+**SHOULD-READ — NC State Trademark Licensing, ""Student Use""** (trademarks.ncsu.edu/student-use/) — *~10 min.*
+Touches your product name and branding.
+→ **Design change:** individuals may not use NC State marks; only recognized student groups may, and only with a prior-approved Trademark Use Request. So: no Block S, no Wolfpack red-and-white as official branding, and be careful about naming it ""NC State PackPlate."" Add a ""not affiliated with or endorsed by NC State University"" line in the footer — that's a ten-minute fix that avoids a real complaint.
+
+**SKIM — choosealicense.com; OSI Approved Licenses.**
+Pick MIT or Apache-2.0 for your own repo and move on. Apache-2.0 if you want the explicit patent grant.
+
+**SKIM — GitHub Dependency Graph / Dependabot alerts.**
+Free, already on, gives you a vulnerability section for the report at zero cost.
+
+---
+
+## 6. One you didn't list but are exposed to: giving nutrition advice
+
+**MUST-READ — N.C.G.S. §90-357.5(a), the dietetics/nutrition licensure exemptions** (ncleg.gov, Chapter 90 Article 25) — *~15 min.*
+Your **protein-target** feature is the trigger.
+→ **Design change, and it's cheap:** the statute exempts ""a person who does **not hold himself or herself out to be** a dietitian or nutritionist when that person furnishes nutrition information on food."" So: never label output as a ""recommendation"" or ""plan,"" don't compute a personalized target from height/weight/goals, let the user *enter* their own gram target, and link to NC State Dining's registered dietitian for actual advice. Copy changes only, and it keeps you squarely inside the exemption.
+
+**SHOULD-READ — NASEM Dietary Reference Intakes for protein (the 0.8 g/kg/day RDA).**
+If you show any default target at all, cite the source next to it rather than inventing a number.
+
+---
+
+## Out of budget — real standards you could not comply with this month
+
+Listing these *as excluded* is itself a credible move in a report. Name them, say why, say what you did instead.
+
+- **ISO/IEC 27001:2022 (ISMS).** Certification is a 6–12 month organizational effort. Not applicable to a four-person course project.
+- **SOC 2 Type II.** Requires a 3–12 month observation window by definition. Structurally impossible in 30 days.
+- **WCAG 2.2 Level AAA.** W3C itself says AAA is not achievable for all content. Target AA; state AAA as out of scope.
+- **VPAT / ACR (Accessibility Conformance Report, ITI format).** Requires a full audited conformance claim per success criterion. Note it as the artifact a real procurement would demand.
+- **Full EN 301 549 conformance.** EU procurement standard; no US obligation and far too broad.
+- **NIST SSDF (SP 800-218) in full.** ~40 practices. *Do* cherry-pick three (dependency audit, code review, secrets management) and say you adopted a subset deliberately.
+- **A formal DPIA under GDPR Art. 35.** Presupposes a controller relationship and legal review you don't have. Do a one-page informal privacy analysis instead.
+- **ISO/IEC/IEEE 29148 requirements specification.** Heavyweight; borrow the structure for your requirements section, don't claim conformance.
+- **Third-party penetration test or independent accessibility audit.** Both cost money and calendar time. Substitute: axe + manual keyboard pass, documented.
+
+---
+
+## The five decisions this reading should actually produce
+
+If you read nothing else, these are the design changes the MUST tier implies, and all five are cheap in week 1 and expensive in week 4:
+
+1. **No accounts, no server-side profile.** Constraints live in `localStorage`. Kills FERPA, the data-classification problem, and most of your security surface.
+2. **Three-valued allergen logic — contains / free-of / unknown.** Unknown renders as unknown, never as safe. Backed by Restatement §311.
+3. **Halal and vegetarian are pass-through claims, never inferred.** Key halal off NC State's existing pork label plus the operator's own designation.
+4. **No allergen status conveyed by color alone.** WCAG 1.4.1, decided at the component level before the first menu card exists.
+5. **Protein target is user-entered, never computed-and-recommended.** Keeps you inside the §90-357.5(a) exemption with copy changes alone.
+
+**Sources:**
+- [DOJ ADA Title II web rule (28 CFR Part 35)](https://www.ada.gov/assets/pdfs/web-rule.pdf) · [Federal Register: extension of compliance dates (Apr. 20, 2026)](https://www.federalregister.gov/documents/2026/04/20/2026-07663/extension-of-compliance-dates-for-nondiscrimination-on-the-basis-of-disability-accessibility-of-web)
+- [NC State REG 04.25.05 – ICT Accessibility](https://policies.ncsu.edu/regulation/reg-04-25-05) · [NC State Digital Accessibility](https://accessibility.ncsu.edu/)
+- [NC State POL 08.00.01 – Use of IT Resources](https://policies.ncsu.edu/policy/pol-08-00-01/) · [REG 08.00.02](https://policies.ncsu.edu/regulation/reg-08-00-02/) · [RUL 08.00.16 – Security Standards for Sensitive Data](https://policies.ncsu.edu/rule/rul-08-00-16)
+- [NC State Data Management Framework – data classification](https://cybersecurity.ncsu.edu/data-management/data-management-framework/data-class-qa/)
+- [NC State Dining – Special Dietary Needs](https://dining.ncsu.edu/nutrition/special-dietary-needs) · [Nutrition Programs](https://dining.ncsu.edu/nutrition/nutrition-programs/) · [robots.txt](https://dining.ncsu.edu/robots.txt)
+- [DOJ press release – Lesley University agreement](https://www.justice.gov/archives/opa/pr/justice-department-and-lesley-university-sign-agreement-ensure-meal-plan-inclusive-students) · [DOJ Q&A](https://archive.ada.gov/q&a_lesley_university.htm) · [Settlement agreement PDF](https://www.wrightslaw.com/info/allergy/case.settlement.lesley.univ.dept.justice.allergy.pdf) · [NACUA: Applying the ADA to Students with Food Allergies](https://www.higheredcompliance.org/wp-content/uploads/2018/10/FoodAllergies.pdf)
+- [N.C.G.S. Chapter 90, Article 25 – Dietetics/Nutrition](https://www.ncleg.gov/EnactedLegislation/Statutes/HTML/ByArticle/Chapter_90/Article_25.html) · [NCBDN – who is exempt](https://www.ncbdn.org/who-is-exempt-from-licensure-and-regulation-by-the-north-carolina-board-of-dietetics-nutrition)
+- [NC State Trademark Licensing – Student Use](https://trademarks.ncsu.edu/student-use/) · [Governing Policies](https://trademarks.ncsu.edu/trademark-licensing/tl-about-page-placeholder/governing-policies/)
+
+Want me to turn the MUST tier into a citation table (BibTeX or a markdown table with accessed-dates) for the report?",,235.6,
+P6,enriched,enriched,[10],allergen-liability red-team (plaintiff / allergic-parent persona),claude-pro-cli,off,"# Red team: PackPlate
+
+**Target: Mission B (allergen search).** I picked it because it's the one that survives its own plan. A depends on a six-minute baseline you haven't measured and a ""group chat can't decide"" premise that is a social problem wearing a software costume. C is dead on arrival by your own analysis — a crowd feature with no crowd is an empty map at demo time, and Waitz is already on your campus. B is the only one where the differentiator is a data model rather than a user base, which means four people can actually ship it and a grader can actually evaluate it.
+
+It's also the one that can hurt someone, which is why the last section is about B specifically.
+
+---
+
+## 1. Nobody wants it
+
+**The adoption curve runs backwards from the severity curve.** The more dangerous your allergy, the less you will use PackPlate — because PackPlate's central design commitment is that it will never tell you a dish is safe. Maya Alvarez, your named stakeholder, is exactly the person who cannot act on ""NC State lists no peanut, fetched at 02:04, source link, we make no safety determination."" She has an EpiPen and a mother who has already told her to talk to the dietitian, eat at the same two stations, and ask the person holding the serving spoon. That workflow is solved, free, authoritative, and she adopted it in week one of freshman year. You are selling a faster way to reach an answer she has been told not to trust.
+
+Meanwhile the person who *would* happily use a fast filtered list — mild intolerance, vegetarian, protein target — has a low-stakes need, which means low willingness to install anything. You've built a high-friction, high-honesty tool for the low-stakes user and a tool the high-stakes user is structurally forbidden from relying on.
+
+**The time saving is a first-week cost, not a recurring one.** Your claim is four minutes and nine page loads → fifteen seconds. But students eat at two or three locations, repeatedly, for four years. Search cost amortizes to near zero by October. The relevant metric isn't time-to-answer on first use; it's *how many times per semester does a student face a genuinely novel menu question*. If the answer is ""six,"" your product saves 24 minutes a year and nobody keeps it on their phone.
+
+**The unlabeled rate may eat the product.** NC State marks items ""Not Analyzed"" and says it cannot guarantee complete labeling. You have not counted how many. If 30–40% of dishes are unlabeled, your filtered list is a third gray, and the honest answer PackPlate returns is ""we don't know about a lot of this"" — which is the same answer the student already has, delivered faster.
+
+> **Evidence that defeats this:** (a) Count it. Scrape one week, publish the `NOT_ANALYZED` rate per location per day. Under ~10% and my third paragraph collapses. (b) Interview eight students with diagnosed top-9 allergies on a meal plan — not friends, recruited — and ask what they do today. If four of them say ""I open every location page by hand,"" I'm wrong about the workflow being solved. (c) Retention, not stopwatch: instrument week 1 vs. week 4 return use in your pilot. A time-to-task number proves nothing about a habit.
+
+---
+
+## 2. They can't build it
+
+Not ""software is hard."" Specifically: **you have one critical path, it is the thing none of you has done, and it cannot be parallelized across four people.**
+
+Your own numbers: 160 gross, ~120 productive, ingest at 35–45. That's a third of your entire budget on a component you've flagged as novel to the team, sourced from CBORD NetNutrition — session-based, POST-driven navigation with unit/menu OIDs, and your own market survey reports a redirect loop on a plain fetch. That is not a ""scrape a page"" job; it's a session-state reverse-engineering job, and those have a long tail. A 45-hour estimate on an unfamiliar, adversarial-by-accident target from a team with no prior data on its own estimation accuracy is a coin flip, and the downside isn't 45 hours, it's 70.
+
+**The parallelism is fake.** Filter logic, group intersection, and UI all block on a stable schema, which blocks on a working parser. Weeks 1–2 are one person on ingest and three people waiting or building against a guessed schema they'll rewrite. You do not have four people for four weeks; you have roughly one person for two weeks and then four people for two.
+
+**You are also spending build hours on a research study.** The hand-labeled golden set is 12–15 person-hours of adjudication. The timing study is ten students, recruited, run twice each, with browser-history extraction — realistically 8–12 hours of calendar coordination that four grad students must fit around *other people's* schedules, plus whatever human-subjects paperwork your course requires. That's ~25 hours, a fifth of the budget, producing zero code.
+
+**Ten hours a week is the optimistic self-report and it isn't flat.** Week 4 of a graduate term is when every other course's deliverable lands. Assume a real distribution of 12, 11, 9, 6 and the last week — your integration-and-demo week — is your thinnest.
+
+Net: I think you ship ingest plus single-person filter, and group mode plus the golden set get compressed into the last five days.
+
+> **Evidence that defeats this:** A working authenticated NetNutrition session returning parsed JSON for one location, committed as a fixture, **by end of day 3**. Not ""we can hit the site"" — a parsed dish with an allergen field and a `NOT_ANALYZED` case, plus the freshness assertion failing correctly on a corrupted snapshot. If that exists on day 3, my estimate is wrong and the rest of the plan is defensible. If it doesn't exist by day 7, cut group mode immediately rather than at week 4.
+
+---
+
+## 3. Someone does it better
+
+**The NC State Dining registered dietitian.** Free, authoritative, personalized, legally accountable, and already the recommended path. For the anaphylactic user — your headline user — this is not a worse product. It is a strictly better one on every axis except latency, and latency is the one axis that user has been told not to optimize.
+
+**CBORD NetNutrition itself.** This is the one that could end Mission B in an afternoon. NetNutrition ships allergen and dietary filtering as standard vendor functionality across its deployments. Your market survey marks NC State's portal ""No"" for *multi-person* filtering — but it never establishes that single-person allergen filtering is absent, and Mission B is a single-person product. **If the portal already filters by peanut, your entire wedge is ""the official tool, but with a gray badge and a timestamp.""** This is a fifteen-minute check and it is missing from your MUST-CHECK list, which is the most alarming gap in the whole plan.
+
+**Point of service.** Physical allergen placards at the serving line are more current than any daily scrape and are what dining staff, the dietitian, and every allergy clinician will tell the student to use. Your data is up to 26 hours old by your own alerting threshold. The station sign is zero hours old.
+
+**A general assistant with browsing.** A student types ""what's peanut-free at Fountain tonight"" into a chatbot and gets an answer in ten seconds with nothing installed. It's a *worse* answer than yours. It wins on exactly the metric you chose to compete on.
+
+**Nutrislice, contingently.** NC State switched dining software in July 2025 — they are in vendor churn. If the next vendor is Nutrislice, students get best-in-class allergen and halal filtering, in 50+ languages, free, officially. You'd be a semester project competing with a procurement decision.
+
+> **Evidence that defeats this:** (a) Screenshots of the NC State NetNutrition portal showing no allergen filter, or one that's unusable on a phone — with the mobile session captured. (b) A quote from Dining or the dietitian on consult wait times; if it's two weeks to book, the ""just ask the dietitian"" answer weakens. (c) Confirmation NC State's CBORD contract runs past the academic year.
+
+---
+
+## The liability case
+
+*I'm the parent. My daughter is 18. She's alive because of a pen in her bag, and she used your app.*
+
+### The case I'd build
+
+**1. Your own documents are Exhibit A.** Your risk register contains the line: *""A user with a real allergy trusts our output — Likelihood L / Impact H — Not detectable after the fact.""* You identified the precise harm, rated its severity as maximum, wrote that you had no way to detect it, and shipped. I will read that row to a jury. Next to it I'll put your mission statement — *""A student avoiding peanuts goes from... to one filtered list in under fifteen seconds""* — because it establishes that helping an allergic student decide what to eat was not a foreseeable misuse. It was the marketed purpose.
+
+**2. The disclaimer contradicts the interface.** You cannot build a product whose sole function is allergen filtering and then disclaim making safety determinations. Duty follows foreseeable use, and you documented the use. A one-line disclaimer and a banner do not neutralize an affirmative per-dish statement rendered at the moment of decision. ""NC State lists no peanut"" is read by an eighteen-year-old at 6:15pm as *no peanut*. Your three-state model is a distinction that exists in your schema and dissolves in the user's head — and you knew that, which is why you wrote a stakeholder row about people mistaking your output for clinical advice.
+
+**3. Negligent misrepresentation, and it doesn't need malice.** You supplied information for others' guidance in a matter where you knew reliance was the point; you had a duty of reasonable care in obtaining and communicating it. You obtained it by scraping a vendor portal whose terms of use you had marked ""MUST CHECK"" and, I will establish in discovery, had not resolved at ship. Unauthorized acquisition destroys the good-faith-republisher posture and gives me a narrative about a team that checked nothing.
+
+**4. Staleness is a design choice you made.** Your alert fires at 26 hours. That means you accepted serving day-old allergen data as current. If the kitchen substituted an ingredient at 4pm, your label was wrong for fourteen hours by design.
+
+**5. If it was a parse bug, there is no republisher defense at all.** If NC State published ""contains peanut"" and your parser dropped the flag, the misstatement is 100% yours, originated by your code, and your fixture test suite — which you'll produce in discovery — becomes the measure of what care you actually took.
+
+**6. I'm not suing four students.** I'm suing the university, on apparent affiliation and on notice. Which means the realistic outcome isn't a verdict — it's General Counsel sending you a takedown in week three, and that ends the project just as surely.
+
+**The strongest defense you have,** and I'll say it because you should know it: North Carolina is one of a handful of pure contributory-negligence jurisdictions. If the student's own reliance is found unreasonable, my recovery is zero. Your lawyers will lean on that hard. It's a real defense — and it is worth nothing to you, because the thing that destroys four grad students and a course project is the existence of the complaint, not its outcome.
+
+### The cheapest fix, and the one you MUST ship
+
+**MUST SHIP IN V1 — delete the affirmative allergen-free state.**
+
+Collapse your three states to two displayed states:
+
+- **`NC State lists PEANUT in this item.`**
+- **`NC State has not labeled this item for peanut.`**
+
+There is no third. You never say a dish lacks an allergen — because absence of a label is not evidence of absence, and rendering it as one is the entire defect. Filtering becomes **exclusion-only**: it removes dishes *known to contain*, and every surviving dish carries ""not labeled"" inline, on the card, non-dismissible, with the fetch time and source link. Your filter's promise changes from ""here's what you can eat"" to ""here's what NC State hasn't flagged."" That is the true claim, and it is the only one you can defend.
+
+Cost: one enum, one template, one test asserting no code path can emit an allergen-free assertion. **Three to four hours.** It is the highest-leverage four hours in your entire month.
+
+Ship alongside it, if you have the hours:
+- **Fail-closed staleness on allergen fields specifically.** Older than ~12 hours and the allergen filter refuses to render rather than rendering stale. Going blank is survivable; being confidently wrong is not.
+- **Never persist an allergy profile server-side.** Session/client only. The moment your database contains ""this identified user is anaphylactic to peanuts,"" you are a party with actual knowledge of a specific risk to a specific person, and my case gets easier.
+- **Resolve the CBORD terms before any code ships.** Not as legal hygiene — as the thing that keeps you a good-faith republisher instead of an unauthorized one.
+
+**And you should say out loud what this costs you:** the legally survivable version of Mission B is a tool that can only ever tell a student what to avoid, never what to eat. Take that back to attack #1 and ask whether that product still has a user. My honest read is that it doesn't — which is an argument for Mission A, where per-person dish counts over *dietary preference* (vegetarian, halal, protein) carry a fraction of the downside, and the peanut case is handled by pointing at the dietitian.
+
+> **Evidence that defeats this attack:** (a) A written data-use acknowledgment from NC State Dining, plus a read from OGC or Student Legal Services. If Dining blesses it, the affiliation problem inverts and becomes your strongest asset. (b) Screenshots showing NC State's own portal makes the affirmative claim (""Peanut: No"") — if you republish the university's own statement verbatim with attribution and timestamp, your marginal exposure drops sharply, though it does not vanish. (c) The CBORD terms, read and quoted, permitting this use.
+
+---
+
+I'm not your lawyer and none of this is legal advice — it's the shape of the argument someone with standing would make. The parts you can act on this month are: count the unlabeled rate, check whether NetNutrition already filters, get ingest working by day 3, and delete the green state.",,150.9,
