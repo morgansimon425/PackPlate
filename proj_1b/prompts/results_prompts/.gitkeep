@@ -1,0 +1,3 @@
+Per-model prompt results land here as <model name>.csv, one row per prompt.
+Each teammate runs one model and commits their own CSV.
+This file just keeps the directory in git while it's empty.

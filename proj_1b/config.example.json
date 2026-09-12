@@ -1,0 +1,79 @@
+{
+  "_comment": "Copy this file to config.json and edit it. config.json is gitignored so everyone keeps their own local copy without stepping on teammates. The four `_model_N` blocks below are the exact four models proj1a used -- same four for proj1b, so the D5 model comparison carries across both projects.",
+
+  "name": "claude-pro-cli",
+  "provider": "cli",
+  "cli": "claude",
+
+  "_model_1_claude_pro_subscription": {
+    "name": "claude-pro-cli",
+    "provider": "cli",
+    "cli": "claude",
+    "_setup": "one-time: `claude login` (do NOT set ANTHROPIC_API_KEY in your environment, or the CLI uses that instead of your subscription)",
+    "_note": "the only config that supports conversation chaining and file_access"
+  },
+  "_model_2_chatgpt_plus_subscription": {
+    "name": "chatgpt-plus-codex-cli",
+    "provider": "cli",
+    "cli": "codex",
+    "chain": false,
+    "codex_search": true,
+    "_setup": "one-time: `npm install -g @openai/codex`, then `codex login` (sign in with your ChatGPT account)",
+    "_note": "codex exec is not chained by this harness -- set chain:false or every prompt errors",
+    "_web": "codex_search adds `--search` for web access. VERIFY with `codex exec --help` on your machine; if the flag isn't there, set codex_search to false and the rows log web=unavailable."
+  },
+  "_model_3_gemini_PREFERRED_web_capable": {
+    "name": "gemini-grounded-api",
+    "provider": "google",
+    "model": "gemini-2.0-flash",
+    "api_key_env": "GOOGLE_API_KEY",
+    "grounding": true,
+    "chain": false,
+    "_setup": "free-tier key from https://aistudio.google.com/apikey, then set GOOGLE_API_KEY in your environment (never in this file)",
+    "_web": "grounding:true enables Google Search grounding. This is the recommended Gemini config for proj1b -- the agy CLI below cannot search at all."
+  },
+  "_model_3_alt_gemini_via_antigravity_NO_WEB": {
+    "name": "gemini-antigravity-cli",
+    "provider": "cli",
+    "cli": "agy",
+    "chain": false,
+    "_setup": "one-time: install Google Antigravity (https://antigravity.google), launch it once to sign in with your Google account",
+    "_web": "CANNOT search: --mode plan blocks all tool use, and that same flag is the only thing stopping agy writing files, so we don't drop it. Rows log web=unavailable. Check `agy --help` for a search flag -- if one exists, wire it into providers.call_cli and this becomes usable for the market prompts."
+  },
+  "_model_4_local_ollama": {
+    "name": "qwen2.5-coder-14b-local",
+    "provider": "ollama",
+    "model": "qwen2.5-coder:14b",
+    "base_url": "http://localhost:11434",
+    "chain": false,
+    "_note": "the 'fourth running locally (Ollama-class)' model proj1b asks for. chain:false is REQUIRED -- providers.py raises for any non-cli provider when a session is passed.",
+    "_web": "CANNOT search, ever -- no tools, no machine to run them on. It still answers every prompt; rows just log web=unavailable, so its market claims are recall rather than evidence. That contrast is D5 material, not a defect."
+  },
+
+  "_api_key_alternatives_if_you_prefer_metered_billing": {
+    "_openai_example": {
+      "name": "gpt-4o-mini",
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "api_key_env": "OPENAI_API_KEY",
+      "chain": false
+    },
+    "_anthropic_example": {
+      "name": "claude-sonnet",
+      "provider": "anthropic",
+      "model": "claude-sonnet-4-5",
+      "api_key_env": "ANTHROPIC_API_KEY",
+      "chain": false
+    },
+    "_google_example": {
+      "name": "gemini-flash",
+      "provider": "google",
+      "model": "gemini-2.0-flash",
+      "api_key_env": "GOOGLE_API_KEY",
+      "chain": false
+    }
+  },
+
+  "chain": true,
+  "overwrite": false
+}
