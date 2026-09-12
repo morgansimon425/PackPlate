@@ -1,11 +1,7 @@
-"""Run every prompt in starter_prompts.json (the 12 official proj1b prompts)
-AND enriched_prompts.json (our own, kept in a separate file on purpose)
-through your configured model (config.json), and log one row per prompt to
+"""Run the configured prompt set through one model and log one row per prompt
+to
 results_prompts/<your model>.csv -- with a `category` column ("starter" or
-"enriched") so the two stay clearly distinguishable even though they're
-logged together. Columns match what D5 needs: prompt id, category, source,
-your model's full response, and a blank `verdict` column for a human to
-fill in after reading it (see build_all_models.py).
+"enriched") and provenance columns so the six team prompts stay distinguishable.
 
 A prompt marked "runnable": false is skipped and logged as such -- never faked.
 
@@ -21,7 +17,7 @@ differences, all flagged in-place below:
     tool-less model can honestly produce. A prompt can opt out with
     "web_access": false. Not every model can honour it (the local one
     can't at all), so the `web` column records what each row actually had.
-  * No repo to explore, so nothing sets file_access yet. The machinery is
+    * No repo to explore, so nothing sets file_access yet. The machinery is
     still here if we want it later.
 
 Usage: python run_prompts.py
@@ -41,7 +37,7 @@ sys.path.insert(0, str(ROOT.parent))  # providers.py lives one level up, in proj
 from providers import call_model, web_capability
 
 RESULTS_DIR = ROOT / "results_prompts"
-FIELDNAMES = ["prompt_id", "category", "source", "model", "web", "response", "verdict", "seconds", "error"]
+FIELDNAMES = ["prompt_id", "category", "source", "base_starters", "new_modules", "model", "web", "response", "verdict", "seconds", "error"]
 
 # proj1b prompts get web access unless they say otherwise -- the opposite
 # of proj1a's default. See providers.call_cli's TOOL POSTURE note.
@@ -51,6 +47,30 @@ WEB_DEFAULT = True
 # starter_prompts.json. Deliberately distinct from the assignment's own
 # <angle bracket> notation so it is unambiguously greppable.
 BLANK_RE = re.compile(r"<<FILL IN:.*?>>", re.DOTALL)
+
+
+def _normalize_prompt(prompt):
+    """Give both prompt-file shapes the runner's internal `text` field."""
+    normalized = dict(prompt)
+    if "text" not in normalized:
+        normalized["text"] = normalized.pop("prompt_text")
+    normalized.setdefault("category", "starter")
+    normalized.setdefault("source", "starter")
+    normalized.setdefault("base_starters", [])
+    normalized.setdefault("new_modules", "")
+    normalized.setdefault("web_access", normalized.get("web", "on") == "on")
+    return normalized
+
+
+def _prompt_row_metadata(prompt, model_name):
+    return {
+        "prompt_id": prompt["id"],
+        "category": prompt["category"],
+        "source": prompt["source"],
+        "base_starters": json.dumps(prompt.get("base_starters", []), separators=(",", ":")),
+        "new_modules": prompt.get("new_modules", ""),
+        "model": model_name,
+    }
 
 
 def check_blanks(prompts):
@@ -94,64 +114,16 @@ def _cfg_supports_chaining(cfg):
 
 
 def load_prompts(cfg):
-    """Return the prompts in execution order, applying enriched-over-starter
-    replacements -- but ONLY for a config that can actually run the
-    replacement (see _cfg_supports_file_access). Every other model gets the
-    original starter prompt in its own slot, unreplaced, so it answers what
-    it can actually answer instead of inheriting a swap it can't honour.
-
-    An enriched prompt with "replaces": "<starter id>" takes that starter's
-    POSITION in the run, which is what makes replacement useful: put the
-    replacement on starter #1 and it runs first, so with one shared
-    conversation everything after it inherits whatever it read.
-
-    The replaced starter is not dropped -- it stays in the list carrying a
-    _replaced_by marker, so it is logged as an explicit N/A row. That keeps
-    our CSV aligned with teammates who ran the original prompt, instead of
-    the row silently vanishing from the merged table.
-    """
+    """Return the configured run set, defaulting to the six enriched prompts."""
     starter = json.loads((ROOT / "starter_prompts.json").read_text(encoding="utf-8"))
     enriched_fp = ROOT / "enriched_prompts.json"
     enriched = json.loads(enriched_fp.read_text(encoding="utf-8")) if enriched_fp.exists() else []
-
-    starter_ids = {p["id"] for p in starter}
-    replacements = {}
-    for p in enriched:
-        target = p.get("replaces")
-        if not target:
-            continue
-        if target not in starter_ids:
-            raise SystemExit(f"{p['id']} has \"replaces\": \"{target}\", which is not a starter prompt id. "
-                             f"Valid ids: {', '.join(sorted(starter_ids))}")
-        if target in replacements:
-            raise SystemExit(f"Both {replacements[target]['id']} and {p['id']} claim to replace {target}. "
-                             f"Only one enriched prompt may replace a given starter prompt.")
-        replacements[target] = p
-
-    can_replace = _cfg_supports_file_access(cfg)
-
-    ordered = []
-    for p in starter:
-        replacement = replacements.get(p["id"])
-        if replacement and can_replace:
-            ordered.append({**p, "_replaced_by": replacement["id"]})
-            ordered.append(replacement)
-        else:
-            # either nothing wants to replace this one, or something does but
-            # this model can't run it (e.g. no file_access support) -- run
-            # the original starter prompt normally either way.
-            ordered.append(p)
-    # enriched prompts that don't replace anything (or couldn't, for this
-    # model) just run after the starters, unless they need something this
-    # config can't provide -- then skip them outright rather than error.
-    for p in enriched:
-        if p.get("replaces") and not can_replace:
-            continue  # not attempted -- it would just error
-        if not p.get("replaces"):
-            ordered.append(p)
-        elif can_replace:
-            pass  # already placed in the starter's slot above
-    return ordered
+    prompt_set = cfg.get("prompt_set", "enriched")
+    if prompt_set in ("starter", "starters", "raw_starters"):
+        return [_normalize_prompt(p) for p in starter]
+    if prompt_set != "enriched":
+        raise SystemExit(f"Unknown prompt_set {prompt_set!r}; use \"enriched\" or \"raw_starters\".")
+    return [_normalize_prompt(p) for p in enriched]
 
 
 def main():
@@ -190,6 +162,9 @@ def main():
         with open(out_csv, newline="", encoding="utf-8") as f:
             for r in csv.DictReader(f):
                 r.setdefault("category", "starter")
+                r.setdefault("source", "starter")
+                r.setdefault("base_starters", "[]")
+                r.setdefault("new_modules", "")
                 r.setdefault("web", "")  # backfill rows logged before this column existed
                 if not r.get("error") and (r.get("response") or "not runnable" in r.get("verdict", "")):
                     existing[r["prompt_id"]] = r
@@ -203,20 +178,14 @@ def main():
 
         if p.get("_replaced_by"):
             print(f"skip {p['id']} (replaced by {p['_replaced_by']})")
-            row = {
-                "prompt_id": p["id"], "category": p["category"], "source": p["source"],
-                "model": model_name, "web": "", "response": "",
-                "verdict": f"N/A - replaced by {p['_replaced_by']}",
-                "seconds": "", "error": "",
-            }
+            row = _prompt_row_metadata(p, model_name)
+            row.update({"web": "", "response": "", "verdict": f"N/A - replaced by {p['_replaced_by']}",
+                        "seconds": "", "error": ""})
         elif not p.get("runnable", True):
             print(f"skip {p['id']} (marked not runnable - {p['source']})")
-            row = {
-                "prompt_id": p["id"], "category": p["category"], "source": p["source"],
-                "model": model_name, "web": "", "response": "",
-                "verdict": "N/A - not runnable, see source",
-                "seconds": "", "error": "",
-            }
+            row = _prompt_row_metadata(p, model_name)
+            row.update({"web": "", "response": "", "verdict": "N/A - not runnable, see source",
+                        "seconds": "", "error": ""})
         else:
             wants_web = p.get("web_access", WEB_DEFAULT)
             web = web_capability(cfg, wants_web)
@@ -231,12 +200,9 @@ def main():
             except Exception as exc:  # noqa: BLE001
                 response, error = "", str(exc)
 
-            row = {
-                "prompt_id": p["id"], "category": p["category"], "source": p["source"], "model": model_name,
-                "web": web,
-                "response": response, "verdict": "", "seconds": round(time.time() - start, 1),
-                "error": error,
-            }
+            row = _prompt_row_metadata(p, model_name)
+            row.update({"web": web, "response": response, "verdict": "",
+                        "seconds": round(time.time() - start, 1), "error": error})
             print(f"  -> {len(response)} chars back" + (f"  [ERROR: {error}]" if error else ""))
 
         rows.append(row)

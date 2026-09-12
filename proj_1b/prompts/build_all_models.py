@@ -16,26 +16,51 @@ from pathlib import Path
 
 ROOT = Path(__file__).parent
 RESULTS_DIR = ROOT / "results_prompts"
-FIELDNAMES = ["prompt_id", "category", "source", "model", "web", "response", "verdict", "seconds", "error"]
+FIELDNAMES = ["prompt_id", "category", "source", "base_starters", "new_modules", "model", "web", "response", "verdict", "seconds", "error"]
+MANIFEST_FIELDS = ["id", "name", "source", "base_starters", "new_modules", "runnable"]
 
 # proj1b: three cloud LLMs + one local (Ollama-class). See config.example.json.
 EXPECTED_MODELS = 4
 
 
-def prompt_order():
-    """Return [{"id", "category", "source"}, ...] across starter and enriched
-    prompt files, in file order, including non-runnable ones."""
+def prompt_order(prompt_set="enriched"):
+    """Return the selected prompt set in file order."""
     ordered = []
-    for fname in ("starter_prompts.json", "enriched_prompts.json"):
-        fp = ROOT / fname
-        if fp.exists():
-            for p in json.loads(fp.read_text(encoding="utf-8")):
-                ordered.append({"id": p["id"], "category": p.get("category", "starter"),
-                                "source": p.get("source", "")})
+    fname = "enriched_prompts.json" if prompt_set == "enriched" else "starter_prompts.json"
+    fp = ROOT / fname
+    if fp.exists():
+        for p in json.loads(fp.read_text(encoding="utf-8")):
+            ordered.append({"id": p["id"], "category": p.get("category", "enriched" if prompt_set == "enriched" else "starter"),
+                            "source": p.get("source", "starter"),
+                            "base_starters": json.dumps(p.get("base_starters", []), separators=(",", ":")),
+                            "new_modules": p.get("new_modules", "")})
     return ordered
 
 
+def write_manifest():
+    """Write provenance from prompt definitions, independent of model output."""
+    prompts = json.loads((ROOT / "enriched_prompts.json").read_text(encoding="utf-8"))
+    rows = []
+    for p in prompts:
+        rows.append({
+            "id": p["id"], "name": p["name"], "source": p["source"],
+            "base_starters": json.dumps(p.get("base_starters", []), separators=(",", ":")),
+            "new_modules": p.get("new_modules", ""), "runnable": str(p.get("runnable", True)).lower(),
+        })
+    out = ROOT / "prompt_provenance.csv"
+    with open(out, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=MANIFEST_FIELDS)
+        writer.writeheader()
+        writer.writerows(rows)
+    counts = {source: sum(1 for p in prompts if p["source"] == source)
+              for source in ("starter", "enriched", "combination")}
+    print(f"prompt provenance: {counts['starter']} starter, {counts['enriched']} enriched, "
+          f"{counts['combination']} combination")
+    print(f"wrote {out} ({len(rows)} prompts)")
+
+
 def main():
+    write_manifest()
     csv_files = sorted(RESULTS_DIR.glob("*.csv")) if RESULTS_DIR.exists() else []
     if not csv_files:
         raise SystemExit("No results_prompts/<model>.csv found. Run run_prompts.py first.")
@@ -47,7 +72,9 @@ def main():
             by_model[model] = {r["prompt_id"]: r for r in csv.DictReader(fh)}
 
     models = sorted(by_model.keys())
-    prompts = prompt_order()
+    result_ids = {pid for rows_for_model in by_model.values() for pid in rows_for_model}
+    prompt_set = "enriched" if any(pid.startswith("P") for pid in result_ids) else "starters"
+    prompts = prompt_order(prompt_set)
 
     rows = []
     for p in prompts:
@@ -59,6 +86,8 @@ def main():
                     "prompt_id": pid,
                     "category": p["category"],
                     "source": p["source"],
+                    "base_starters": p["base_starters"],
+                    "new_modules": p["new_modules"],
                     "model": m,
                     "web": r.get("web", ""),
                     "response": r.get("response", ""),
@@ -71,6 +100,8 @@ def main():
                     "prompt_id": pid,
                     "category": p["category"],
                     "source": p["source"],
+                    "base_starters": p["base_starters"],
+                    "new_modules": p["new_modules"],
                     "model": m,
                     "web": "",
                     "response": "_not run_",
@@ -85,6 +116,7 @@ def main():
         writer.writeheader()
         writer.writerows(rows)
 
+    print(f"prompt set: {prompt_set}")
     print(f"models found: {', '.join(models)}")
     print(f"wrote {out} ({len(rows)} rows = {len(prompts)} prompts x {len(models)} model(s))")
     if len(models) < EXPECTED_MODELS:
@@ -96,15 +128,19 @@ def main():
 
     # D1's two-model rule is a human judgment call on the market-survey rows,
     # but flag the raw material for it here so it isn't forgotten.
-    survey_rows = [r for r in rows if r["prompt_id"].startswith("starter_01")
+    survey_rows = [r for r in rows if r["prompt_id"] == "P1"
                    and r["response"] not in ("", "_not run_")]
     if survey_rows:
-        print(f"\nD1 reminder: {len(survey_rows)} market-survey response(s) to cross-check. "
+        print(f"\nD1 reminder: {len(survey_rows)} P1 market-survey response(s) to cross-check. "
               f"A rival counts only if two models name it, or one gives a live URL.")
         blind = sorted({r["model"] for r in survey_rows if r["web"] == "unavailable"})
         if blind:
             print(f"  Answered WITHOUT web access (recall, not evidence): {', '.join(blind)}. "
                   f"A URL from these needs checking by hand before it counts.")
+
+    red_team_rows = [r for r in rows if r["prompt_id"] == "P6" and r["response"] not in ("", "_not run_")]
+    if red_team_rows:
+        print(f"P6 red-team reminder: {len(red_team_rows)} response(s) to include in D5.")
 
 
 if __name__ == "__main__":

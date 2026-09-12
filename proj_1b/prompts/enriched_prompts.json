@@ -1,1 +1,74 @@
-[]
+[
+	{
+		"id": "P1",
+		"name": "Rivals + feature matrix + URL check",
+		"category": "enriched",
+		"source": "combination",
+		"base_starters": [1, 3],
+		"new_modules": "PackPlate 4-feature yes/no/unknown matrix; two-model/URL rule inline",
+		"web": "on",
+		"runnable": true,
+		"depends_on": [],
+		"prompt_text": "You are a market analyst. We have one month to build AND test. PackPlate:\n\n<<FILL IN: PackPlate one-paragraph description>>\n\nList the ten closest competing products. Table one: product | category\n(official university dining app / nutrition tracker / campus life app /\nrestaurant-finder / crowd/wait-time app / other) | who uses it | main\nstrength | main weakness | price | evidence URL.\n\nTable two, per product, yes/no/unknown: does it (a) combine menus + nutrition\n+ hours for one campus, (b) filter by MULTIPLE people's diets at once,\n(c) show crowd/busyness, (d) admit when its data is missing?\n\nRules: no invented products. If unsure it exists, leave it out. Every product\nneeds a real URL or mark it unconfirmed. If you cannot support a claim, write\n\"unknown\" — never fill a cell with something plausible."
+	},
+	{
+		"id": "P2",
+		"name": "The gap, with receipts",
+		"category": "enriched",
+		"source": "combination",
+		"base_starters": [7, 2],
+		"new_modules": "",
+		"web": "on",
+		"runnable": false,
+		"depends_on": ["P1 gap claim / market survey", "collected complaints"],
+		"prompt_text": "We claim this market gap: <<FILL IN: the PackPlate gap in one sentence, e.g.\n\"no tool filters one campus's menus by several people's diets at once\">>.\n\nInterrogate it, using the real complaints below as evidence.\n\n<<FILL IN: collected complaints — issues, reviews, forum posts about campus\ndining apps and diet apps>>\n\n1. CONFIRM: list five findable items that show the gap is real (reviews\n   begging for it, dead products that tried, forum threads). Cluster the\n   complaints into themes; quote one complaint verbatim per theme.\n2. REFUTE: what would prove the gap is fake — an existing product we missed,\n   or evidence nobody wants it?\n3. Mark each item FOUND (with source) or NOT FOUND.\n\nIf the refuting evidence wins, say so plainly. A dead gap found now is cheaper\nthan one found at the poster session."
+	},
+	{
+		"id": "P3",
+		"name": "Mission + metric + stakeholders",
+		"category": "enriched",
+		"source": "combination",
+		"base_starters": [8, 5],
+		"new_modules": "M0 measurable-claim requirement (metric + baseline + threshold)",
+		"web": "off",
+		"runnable": true,
+		"depends_on": [],
+		"prompt_text": "A mission statement gives the WHY (challenge), WHAT (thing we build), SO WHAT\n(benefit). Example of the form:\n\n<<FILL IN: Sentiment Analyzer mission example from poster.md>>\n\nFacts about PackPlate:\n<<FILL IN: PackPlate bullet facts — users, problem, features, stack>>\n\nPart 1: write three candidate missions, five sentences each. Banned words:\nleverage, empower, seamless, revolutionize, cutting-edge, innovative, solution.\nThe SO WHAT of each must contain ONE measurable claim — a metric with a\nbaseline and a threshold, provable by four students in one week (e.g. \"cuts\nthe time a group of three with different diets needs to agree on a dining hall\nfrom X min to under Y\"). Each must contain one concrete detail a rival could\nnot copy-paste.\n\nPart 2: list the stakeholders. Go past customer/staff/admin — who pays, who is\nharmed (name the allergic student), who owns the data (NC State Dining), who\nmaintains this at 3 a.m., who gets sued when it's wrong. Table: stakeholder |\nwhat they fear | one design decision that wins them over."
+	},
+	{
+		"id": "P4",
+		"name": "Milestones + data-dependency",
+		"category": "enriched",
+		"source": "combination",
+		"base_starters": [9, 6],
+		"new_modules": "data-dependency stress test",
+		"web": "off",
+		"runnable": true,
+		"depends_on": [],
+		"prompt_text": "The team: four grad students, one month to build AND test, ~10 hrs/person/week.\nSkills, stated honestly: <<FILL IN: team skills, stated honestly>>. PackPlate\ndepends entirely on one data source — what NC State Dining publishes (hours,\nmenus, nutrition), which we ingest from: <<FILL IN: NC State Dining source\nURLs, format, update frequency if known>>.\n\nPart 1 — data risk. Table: risk | likelihood | impact | how we'd detect it |\nmitigation buildable in one month. Cover at least: source layout changes;\ndata stale/wrong; data incomplete (missing allergens); terms of use forbid\nscraping; a field we rely on disappears. Then name the single biggest point of\nfailure and the smallest thing we can build this month to survive it. Do not\nassume the data is clean, complete, or legally free — cite the terms of use or\nwrite \"must check\".\n\nPart 2 — milestones. Here's our draft: <<FILL IN: draft milestone list>>.\nClassify each REALISTIC / STRETCH / FANTASY against the hours above (not a\nfunded startup), and check each has a TEST, not just a build. For every\nFANTASY, give the largest slice that would be REALISTIC."
+	},
+	{
+		"id": "P5",
+		"name": "Support material",
+		"category": "enriched",
+		"source": "enriched",
+		"base_starters": [4],
+		"new_modules": "PackPlate-exposure focus (allergen labeling, scraping ToU, data-protection)",
+		"web": "on",
+		"runnable": true,
+		"depends_on": [],
+		"prompt_text": "We are building PackPlate for NC State students: it ingests dining hours,\nmenus, and nutrition, and filters them by allergies, halal/vegetarian status,\nand protein targets.\n\nWhat support material would change this design if we read it? Long list.\nCenter on our real exposure: food-allergen labeling and liability; the terms\nof use / robots policy of the pages we scrape; data-protection rules for the\nuser constraints we store; accessibility (WCAG/ADA) for a public student site;\nthe licenses of our dependencies.\n\nFor each item: name a real, findable source; one sentence on which PackPlate\nfeature it touches; rate MUST-READ / SHOULD-READ / SKIM. We cite the must-reads\nin the report."
+	},
+	{
+		"id": "P6",
+		"name": "Red team + allergen liability",
+		"category": "enriched",
+		"source": "enriched",
+		"base_starters": [10],
+		"new_modules": "allergen-liability red-team (plaintiff / allergic-parent persona)",
+		"web": "off",
+		"runnable": false,
+		"depends_on": ["P3 finished mission", "P4 finished milestones", "P1 market survey"],
+		"prompt_text": "You are hostile to PackPlate. Below: our mission, milestones, and market survey.\n\n<<FILL IN: mission statement, milestones, market survey>>\n\nAttack on three fronts, strongest honest case, no strawmen:\n1. Nobody wants it — the need is imagined.\n2. They can't build it — one month too short, team too green.\n3. Someone does it better — name who.\n\nThen the sharp one: you are a plaintiff's lawyer and a parent of a student with\na severe nut allergy. PackPlate told the student an item was safe using NC State\nDining's published data, and the data was wrong. Build the strongest liability\ncase, then give the cheapest fix (UI change / data check / disclaimer)\nbuildable in one month, and name the one mitigation we MUST ship in v1.\n\nFor every attack, state the evidence that would defeat it — we'll go collect it\nor concede."
+	}
+]

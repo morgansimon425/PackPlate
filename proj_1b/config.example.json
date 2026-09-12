@@ -1,5 +1,5 @@
 {
-  "_comment": "Copy this file to config.json and edit it. config.json is gitignored so everyone keeps their own local copy without stepping on teammates. The four `_model_N` blocks below are the exact four models proj1a used -- same four for proj1b, so the D5 model comparison carries across both projects.",
+  "_comment": "Copy this file to config.json and edit it. config.json is gitignored so everyone keeps their own local copy without stepping on teammates. The default run set is the six team-enriched prompts; use prompt_set raw_starters to run the 12 official prompts instead.",
 
   "name": "claude-pro-cli",
   "provider": "cli",
@@ -75,5 +75,6 @@
   },
 
   "chain": true,
+  "prompt_set": "enriched",
   "overwrite": false
 }
