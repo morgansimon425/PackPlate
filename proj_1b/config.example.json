@@ -76,7 +76,6 @@
     }
   },
 
-  "chain": true,
   "prompt_set": "enriched",
   "overwrite": false
 }

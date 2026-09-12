@@ -69,8 +69,14 @@ where our project details go. The script stops and lists which ones are
 still empty instead of sending them to a model.
 
 **Some rows say N/A.** Prompts marked `"runnable": false` are skipped on
-purpose. P2 and P6 need answers from earlier prompts first, so they run in a
-second pass.
+purpose. P2 is the only one — its gap sentence is written after reading P1's
+results, then it runs on a second pass.
+
+**Some rows say PENDING.** A prompt containing `<<FROM: P1>>` gets P1's answer
+pasted in automatically before it is sent. If that answer doesn't exist yet,
+the prompt is logged PENDING and retried next run rather than being sent with
+a gap in it. P6 uses this to pull in P1, P3 and P4, so it runs in the same
+pass as everything else.
 
 **The `web` column.** Shows whether the model could search the web. The local
 model can't, so its answers come from memory and may be made up.
