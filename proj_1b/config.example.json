@@ -4,13 +4,15 @@
   "name": "claude-pro-cli",
   "provider": "cli",
   "cli": "claude",
+  "chain": false,
 
   "_model_1_claude_pro_subscription": {
     "name": "claude-pro-cli",
     "provider": "cli",
     "cli": "claude",
     "_setup": "one-time: `claude login` (do NOT set ANTHROPIC_API_KEY in your environment, or the CLI uses that instead of your subscription)",
-    "_note": "the only config that supports conversation chaining and file_access"
+    "chain": false,
+    "_note": "the only config that COULD chain, but we run it unchained so all four models receive identical inputs. Cross-prompt dependencies are handled explicitly by <<FROM:>> instead."
   },
   "_model_2_chatgpt_plus_subscription": {
     "name": "chatgpt-plus-codex-cli",

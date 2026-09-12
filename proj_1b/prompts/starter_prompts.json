@@ -2,43 +2,43 @@
   {
     "id": "starter_01_map_competition",
     "category": "starter",
-    "source": "official proj1b starter prompt #1 (Map the competition). MANDATORY on every model -- proj1b.md: 'At minimum, run prompt 1 (market survey) and prompt 10 (red team) on every model.' Feeds D1.",
-    "runnable": true,
+    "source": "official proj1b starter prompt #1 (Map the competition). MANDATORY on every model -- proj1b.md: 'At minimum, run prompt 1 (market survey) and prompt 10 (red team) on every model.' Feeds D1. SWITCHED OFF: superseded by enriched P1.",
+    "runnable": false,
     "text": "You are a market analyst. Our product, in one paragraph:\n\nPackPlate is a website that helps NC State students decide where to eat on campus. It collects dining hours, menus, and nutrition information from every campus dining location into one place, and lets students filter the menus by their dietary restrictions and goals, such as allergies, vegetarian, halal, or a protein target. Students can enter constraints for several people at once, so a group with different diets can find a location where everyone has something to eat. Students can also report how busy each location is, so others know what to expect before walking over. The information comes from what NC State Dining publishes, and the site shows when that information is incomplete rather than filling in gaps. It is aimed at students on meal plans, especially those living on campus who eat most of their meals in the dining halls.\n\nList the ten closest competing products. Output a table: product | who uses\nit | main strength | main weakness | price | evidence URL.\n\nRules: no invented products. If you are not sure a product exists, leave it\nout. If you cannot support a claim, write \"unknown\" -- do not fill the cell\nwith something plausible.\n\nHARD CONSTRAINT (applies to every answer in this conversation): we are four\ngraduate students with ONE MONTH to build AND test this product, at roughly\nten hours per person per week. Anything you propose must fit that budget.\nDo not design for a longer timeline."
   },
   {
     "id": "starter_02_mine_complaints",
     "category": "starter",
-    "source": "official proj1b starter prompt #2 (Mine the complaints). Needs real collected evidence -- this one cannot be answered from the model's own knowledge, so the blank must be filled with actual pasted text or the prompt is worthless.",
-    "runnable": true,
+    "source": "official proj1b starter prompt #2 (Mine the complaints). Needs real collected evidence -- this one cannot be answered from the model's own knowledge, so the blank must be filled with actual pasted text or the prompt is worthless. SWITCHED OFF: superseded by enriched P2.",
+    "runnable": false,
     "text": "Below are real user complaints about products like ours: top issues from\ntheir trackers, review excerpts, forum posts.\n\nCluster these complaints into themes. Rank the themes by frequency times\nseverity. For each theme: quote one complaint verbatim as evidence, and say\nwhether any current product has fixed it. The unfixed themes are our\nopportunity list.\n\n<<FILL IN: the issues / reviews / forum posts we collected. Real pasted text only -- GitHub issue titles, app-store reviews, Reddit/HN threads. Include a source line per item so the verbatim quotes are traceable.>>\n\nHARD CONSTRAINT: we are four graduate students with ONE MONTH to build AND\ntest this product, at roughly ten hours per person per week. Weight the\nopportunity list by what fits that budget."
   },
   {
     "id": "starter_03_table_stakes_or_differentiator",
     "category": "starter",
-    "source": "official proj1b starter prompt #3 (Table stakes or differentiator?). WE ARE NOT CONTINUING SAFEBITES, so proj1a's use_cases.csv does not carry over -- this needs 20 brand-new use cases for the new product. proj1b explicitly permits the fresh start: 'You are free to dump the Project 1a product and strike out in a completely new direction.'",
-    "runnable": true,
+    "source": "official proj1b starter prompt #3 (Table stakes or differentiator?). WE ARE NOT CONTINUING SAFEBITES, so proj1a's use_cases.csv does not carry over -- this needs 20 brand-new use cases for the new product. proj1b explicitly permits the fresh start: 'You are free to dump the Project 1a product and strike out in a completely new direction.' SWITCHED OFF: superseded by enriched P1, which folds this into the rivals feature matrix.",
+    "runnable": false,
     "text": "Here are our 20 use cases from Project 1a:\n\n<<FILL IN: 20 NEW use case names, one line of summary each, for the new product. Not the SafeBites twenty -- we are not extending that product.>>\n\nClassify each: TABLE STAKES (every rival has it; we must too) or\nDIFFERENTIATOR (rare or absent in rivals). One sentence of justification\neach -- name the rival that has it, or state that none does.\n\nThen propose two use cases that appear in NO current product but follow\nnaturally from ours. For each: who wants it, and why nobody has built it yet.\n\nHARD CONSTRAINT: we are four graduate students with ONE MONTH to build AND\ntest this product, at roughly ten hours per person per week. A\ndifferentiator we cannot build and test in that window is not useful to us."
   },
   {
     "id": "starter_04_support_material",
     "category": "starter",
-    "source": "official proj1b starter prompt #4 (The support material we have not read yet). Feeds D3 -- the 'support material (regulations, standards, licenses) your design must respect, with sources' half of that deliverable.",
-    "runnable": true,
+    "source": "official proj1b starter prompt #4 (The support material we have not read yet). Feeds D3 -- the 'support material (regulations, standards, licenses) your design must respect, with sources' half of that deliverable. SWITCHED OFF: superseded by enriched P5.",
+    "runnable": false,
     "text": "We are designing PackPlate for campus dining, food labeling and nutrition\ninformation. We have a product design. We do not yet\nknow the world around it.\n\nWhat support material would change this design if we read it? Make a LONG\nlist. Consider at least:\n- Laws and regulations: privacy/data protection, consumer protection, tax,\n  labor law (gig workers?), food/health codes, financial rules.\n- Standards: accessibility (WCAG/ADA), security (OWASP), safety standards,\n  relevant ISO/IEEE standards.\n- Licenses: of our dependencies, of the data we use.\n- Domain knowledge: medical, legal, or professional practice guides that\n  govern our users' work.\n- Human factors: advice on managing people, teams, and on-call load that\n  our product will impose on its operators.\n\nFor each item: name a real, findable source; one sentence on which of our\nuse cases it touches; and rate it MUST-READ / SHOULD-READ / SKIM. We will\nread the must-reads and cite them in the report.\n\nHARD CONSTRAINT: we are four graduate students with ONE MONTH to build AND\ntest this product, at roughly ten hours per person per week. Rank with that\nin mind -- a standard we cannot possibly comply with this month should be\nmarked as such rather than listed as MUST-READ."
   },
   {
     "id": "starter_05_stakeholders",
     "category": "starter",
-    "source": "official proj1b starter prompt #5 (Who else is in the room?). Feeds D2 -- the 'plus stakeholders' half of the mission statement deliverable.",
-    "runnable": true,
+    "source": "official proj1b starter prompt #5 (Who else is in the room?). Feeds D2 -- the 'plus stakeholders' half of the mission statement deliverable. SWITCHED OFF: superseded by enriched P3 Part 2.",
+    "runnable": false,
     "text": "Our stakeholders so far: student, dining hall staff, admin.\n\nThat list is lazy. Extend it. Consider: who pays, who profits, who is\nharmed, who is ignored, who regulates, who maintains this at 3 a.m., who\ngets sued when it fails, whose job changes because it exists.\n\nFor each new stakeholder: what they fear about our product, and one design\ndecision that would win them over. Output as a table.\n\nHARD CONSTRAINT: we are four graduate students with ONE MONTH to build AND\ntest this product, at roughly ten hours per person per week. Each\nwin-them-over design decision must be one we could actually ship in that\nwindow."
   },
   {
     "id": "starter_06_three_futures",
     "category": "starter",
-    "source": "official proj1b starter prompt #6 (Three futures). Feeds D2/D3 -- the SAFE/BOLD/WILD answers are candidate 'version i+1' proposals and their kill signals are useful milestone material.",
-    "runnable": true,
+    "source": "official proj1b starter prompt #6 (Three futures). Feeds D2/D3 -- the SAFE/BOLD/WILD answers are candidate 'version i+1' proposals and their kill signals are useful milestone material. SWITCHED OFF: superseded by enriched P4.",
+    "runnable": false,
     "text": "Our product: PackPlate is a website that helps NC State students decide where to eat on campus. It collects dining hours, menus, and nutrition information from every campus dining location into one place, and lets students filter the menus by their dietary restrictions and goals, such as allergies, vegetarian, halal, or a protein target. Students can enter constraints for several people at once, so a group with different diets can find a location where everyone has something to eat. Students can also report how busy each location is, so others know what to expect before walking over. The information comes from what NC State Dining publishes, and the site shows when that information is incomplete rather than filling in gaps. It is aimed at students on meal plans, especially those living on campus who eat most of their meals in the dining halls.\n\nPropose three versions: SAFE (obvious next step), BOLD (a real bet), and\nWILD (probably wrong, but instructive). For each:\n- Elevator pitch, two sentences.\n- What four students could build AND test of it in one month.\n- The biggest risk.\n- The kill signal: \"we abandon this version if we see ___.\"\n\nDo not blend them into one compromise. Keep the three futures distinct.\n\nHARD CONSTRAINT: we are four graduate students with ONE MONTH to build AND\ntest this product, at roughly ten hours per person per week. The\nbuild-and-test slice you name for each version must fit that budget\nexactly -- that is the point of the question."
   },
   {
@@ -51,15 +51,15 @@
   {
     "id": "starter_08_mission_statement",
     "category": "starter",
-    "source": "official proj1b starter prompt #8 (Mission statement, minus the buzzwords). Feeds D2 directly. NOTE: D2 additionally requires the 'so what' to contain one MEASURABLE claim (metric, threshold, baseline) that Project 2's M0 eval will test -- that requirement is added to the prompt below, since proj1b.md's own prompt text predates it.",
-    "runnable": true,
+    "source": "official proj1b starter prompt #8 (Mission statement, minus the buzzwords). Feeds D2 directly. NOTE: D2 additionally requires the 'so what' to contain one MEASURABLE claim (metric, threshold, baseline) that Project 2's M0 eval will test -- that requirement is added to the prompt below, since proj1b.md's own prompt text predates it. SWITCHED OFF: superseded by enriched P3 Part 1.",
+    "runnable": false,
     "text": "A mission statement gives the WHY (the challenge), the WHAT (the thing we\nbuild), and the SO WHAT (the benefit). Example of the form:\n\n<<FILL IN: the Sentiment Analyzer example from https://github.com/txt/se26f/blob/main/docs/submit/1/poster.md -- paste it verbatim.>>\n\nFacts about our product:\n<<FILL IN: bullet-point facts -- users, problem, features, stack. Plain facts, no selling.>>\n\nWrite three candidate mission statements, five sentences each. Banned words:\nleverage, empower, seamless, revolutionize, cutting-edge, innovative,\nsolution. Each candidate must contain one concrete detail a rival could not\ncopy-paste.\n\nAdditional requirement from the D2 rubric: the SO WHAT must include one\nMEASURABLE claim -- a metric, a threshold, and a baseline -- that a later\nevaluation could actually test and fail. \"Faster\" is not measurable;\n\"resolves a query in under 2s versus the 9s baseline we measured\" is.\n\nWe will pick one and edit it.\n\nHARD CONSTRAINT: we are four graduate students with ONE MONTH to build AND\ntest this product, at roughly ten hours per person per week. Do not promise\na benefit that needs longer than that to demonstrate."
   },
   {
     "id": "starter_09_milestone_reality_check",
     "category": "starter",
-    "source": "official proj1b starter prompt #9 (Milestone reality check). Feeds D3 -- 'Milestones: before / now / future, 3-5 each'. Rubric warning worth remembering: 'Dull milestones lose marks. Impossible ones too.'",
-    "runnable": true,
+    "source": "official proj1b starter prompt #9 (Milestone reality check). Feeds D3 -- 'Milestones: before / now / future, 3-5 each'. Rubric warning worth remembering: 'Dull milestones lose marks. Impossible ones too.' SWITCHED OFF: superseded by enriched P4 Part 2.",
+    "runnable": false,
     "text": "The team: four graduate students, one month to build AND test, roughly ten\nhours per person per week. Skills: <<FILL IN: the four of us, honestly -- languages, frameworks, domains, what each person has actually shipped. Same list as starter_11 and starter_12; keep it identical across all three.>>\n\nOur draft milestones:\n<<FILL IN: the milestone list, grouped BEFORE (Project 1a) / NOW (this month, Project 2) / FUTURE (Project 3), 3-5 each, as D3 wants them.>>\n\nClassify each: REALISTIC / STRETCH / FANTASY, with one sentence of why,\njudged against the hours above -- not against a startup with funding. For\nevery FANTASY, propose the largest slice of it that would be REALISTIC.\nRemember: dull milestones lose marks, impossible ones lose more.\n\nHARD CONSTRAINT: the one month to build AND test is the whole point of this\nquestion. Judge every milestone against it literally."
   },
   {
@@ -72,15 +72,15 @@
   {
     "id": "starter_11_play_to_the_team",
     "category": "starter",
-    "source": "official proj1b starter prompt #11 (Play to the team). Skills list must match starter_09 and starter_12 word-for-word so cross-prompt disagreement is meaningful.",
-    "runnable": true,
+    "source": "official proj1b starter prompt #11 (Play to the team). Skills list must match starter_09 and starter_12 word-for-word so cross-prompt disagreement is meaningful. SWITCHED OFF: not covered by any enriched prompt. Decide whether to revive it.",
+    "runnable": false,
     "text": "Here are the skills of the current team members, stated honestly:\n\n<<FILL IN: Member A -- languages, frameworks, domains, what they have actually shipped>>\n<<FILL IN: Member B -- same>>\n<<FILL IN: Member C -- same>>\n<<FILL IN: Member D -- same>>\n\nCandidate directions for our product:\n<<FILL IN: the directions we are considering -- including \"dump the proj1a product and start fresh in a new language\", which proj1b explicitly permits.>>\n\nGiven these skills -- not the skills we wish we had -- what is a good approach?\nAnswer:\n- Which direction lets this team build and test the most in one month? Why?\n- Which direction is a trap for this team (needs a skill nobody has)?\n- Where one needed skill is missing: is it learnable in a weekend, or should\n  we redesign around it?\n- Who should own what, so nobody is a bottleneck?\n\nHARD CONSTRAINT: one month to build AND test, roughly ten hours per person\nper week. Every recommendation must fit that."
   },
   {
     "id": "starter_12_pivot_question",
     "category": "starter",
-    "source": "official proj1b starter prompt #12 (The pivot question). Deliberately anti-anchoring: run it even if we have already decided, and log the answer honestly in D5 even when we ignore it.",
-    "runnable": true,
+    "source": "official proj1b starter prompt #12 (The pivot question). Deliberately anti-anchoring: run it even if we have already decided, and log the answer honestly in D5 even when we ignore it. SWITCHED OFF: not covered by any enriched prompt. Worth reviving — we did pivot away from the Project 1a product, so its answer belongs in the report.",
+    "runnable": false,
     "text": "Forget our current plan for a moment. Here are the facts, nothing else:\n- The team: four graduate students, skills below, ten hours each per week.\n- The budget: one month to build AND test a working product.\n- What we learned in Project 1a: <<FILL IN: one paragraph -- the domain, the code, the bugs we found. Draw on the real proj1a findings, including the caught-error stories from that project's D5.>>\n\nTeam skills, stated honestly:\n<<FILL IN: the same skills list as starter_09 and starter_11, word-for-word.>>\n\nQuestion: is there a DIFFERENT kind of project we should be exploring -- one\nwe have not considered because we anchored on the Project 1a product?\n\nPropose three genuinely different project kinds (different domain, different\nuser, or different form: CLI vs web vs library vs bot). For each:\n- Why THIS team, specifically, would be unusually good at it.\n- What one-month build-and-test slice looks like.\n- What we lose by walking away from our current plan.\n\nThen answer plainly: stay the course, or pivot? One paragraph. No hedging.\n\nHARD CONSTRAINT: one month to build AND test, roughly ten hours per person\nper week. A project kind that does not fit that is not a candidate."
   }
 ]

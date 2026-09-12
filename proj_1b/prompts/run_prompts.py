@@ -48,6 +48,33 @@ WEB_DEFAULT = True
 # <angle bracket> notation so it is unambiguously greppable.
 BLANK_RE = re.compile(r"<<FILL IN:.*?>>", re.DOTALL)
 
+# Matches <<FROM: P1>> -- a reference to another prompt's response, pasted in
+# automatically just before this prompt is sent. Deliberately NOT matched by
+# BLANK_RE: an unresolved reference is not a human blank, it just means the
+# prompt it depends on has not run yet.
+FROM_RE = re.compile(r"<<FROM:\s*([A-Za-z0-9_]+)\s*>>")
+
+
+def resolve_refs(text, responses):
+    """Replace every <<FROM: X>> with prompt X's response.
+
+    Returns (resolved_text, missing). A prompt with anything missing is logged
+    PENDING and never sent -- sending it with an empty paste would produce a
+    confident answer to a question we did not actually ask, which is the same
+    failure shape the blank check exists to prevent.
+    """
+    missing = []
+
+    def sub(match):
+        pid = match.group(1)
+        resp = responses.get(pid, "")
+        if not resp.strip():
+            missing.append(pid)
+            return match.group(0)
+        return resp
+
+    return FROM_RE.sub(sub, text), missing
+
 
 def _normalize_prompt(prompt):
     """Give both prompt-file shapes the runner's internal `text` field."""
@@ -166,10 +193,16 @@ def main():
                 r.setdefault("base_starters", "[]")
                 r.setdefault("new_modules", "")
                 r.setdefault("web", "")  # backfill rows logged before this column existed
+                if "PENDING" in r.get("verdict", ""):
+                    continue  # a <<FROM:>> reference could not resolve last run -- retry it
                 if not r.get("error") and (r.get("response") or "not runnable" in r.get("verdict", "")):
                     existing[r["prompt_id"]] = r
 
     rows = []
+    # Responses keyed by prompt id, so a later prompt can paste an earlier one
+    # in via <<FROM: X>>. Seeded from rows we already have, so a re-run can
+    # still resolve references to prompts that are being skipped.
+    responses = {pid: r.get("response", "") for pid, r in existing.items()}
     for p in prompts:
         if p["id"] in existing:
             print(f"skip {p['id']} (already have a result for {model_name})")
@@ -189,16 +222,35 @@ def main():
         else:
             wants_web = p.get("web_access", WEB_DEFAULT)
             web = web_capability(cfg, wants_web)
+            prompt_text, missing = resolve_refs(p["text"], responses)
+            if missing:
+                waiting = ", ".join(sorted(set(missing)))
+                print(f"skip {p['id']} (waiting on {waiting})")
+                row = _prompt_row_metadata(p, model_name)
+                row.update({"web": "", "response": "", "verdict": f"PENDING - waiting on {waiting}",
+                            "seconds": "", "error": ""})
+                rows.append(row)
+                with open(out_csv, "w", newline="", encoding="utf-8") as f:
+                    writer = csv.DictWriter(f, fieldnames=FIELDNAMES)
+                    writer.writeheader()
+                    writer.writerows(rows)
+                continue
+
+            pasted = FROM_RE.findall(p["text"])
             mode = " [FILE ACCESS]" if p.get("file_access") else ""
             mode += f" [web: {web}]"
+            if pasted:
+                mode += f" [pasted in: {', '.join(pasted)}]"
             print(f"running {p['id']} ({p['category']}) on {model_name}{mode} ...")
             start = time.time()
             try:
-                response = call_model(cfg, p["text"], file_access=p.get("file_access", False),
+                response = call_model(cfg, prompt_text, file_access=p.get("file_access", False),
                                       session=session, web_access=wants_web)
                 error = ""
             except Exception as exc:  # noqa: BLE001
                 response, error = "", str(exc)
+
+            responses[p["id"]] = response
 
             row = _prompt_row_metadata(p, model_name)
             row.update({"web": web, "response": response, "verdict": "",
@@ -216,6 +268,10 @@ def main():
           f"({sum(1 for r in rows if r['category'] == 'starter')} starter, "
           f"{sum(1 for r in rows if r['category'] == 'enriched')} enriched).")
     webs = {r["web"] for r in rows if r["web"]}
+    pending = [r["prompt_id"] for r in rows if "PENDING" in r.get("verdict", "")]
+    if pending:
+        print(f"PENDING: {', '.join(pending)} did not run — a prompt they paste in "
+              f"has no result yet. Re-run once it does.")
     if "unavailable" in webs:
         print("NOTE: at least one prompt asked for web access this model cannot provide "
               "(web=unavailable). Those answers are recall, not evidence -- say so in D5.")
