@@ -15,6 +15,21 @@ cp config.example.json config.json
 the top of `config.json` and follow the setup notes inside that block.
 `config.json` is gitignored.
 
+The Claude, Codex, and Antigravity blocks authenticate via their CLI's own
+login command (see `_setup` in each block) — no environment variable needed.
+The Gemini API block (and the metered alternatives at the bottom of the
+file) instead read a key from an environment variable named in
+`api_key_env`, set outside `config.json`. How to set one depends on your
+shell, e.g. for `GOOGLE_API_KEY`:
+
+```
+# Windows PowerShell
+$env:GOOGLE_API_KEY = "your-key-here"
+
+# macOS / Linux (bash/zsh)
+export GOOGLE_API_KEY=your-key-here
+```
+
 The default `prompt_set` is `enriched`, which runs the six team prompts P1-P6
 and excludes the superseded and dropped starters. Set `prompt_set` to
 `raw_starters` to run the original 12 prompts instead.
@@ -28,7 +43,8 @@ python run_prompts.py
 
 Answers are saved to `results_prompts/<model name>.csv`. Each row includes the
 prompt source (`starter`, `enriched`, or `combination`), its base starter
-numbers, and any team-invented modules.
+numbers, any team-invented modules, and which model actually answered
+(`model_id`, `provider`) — set `"model"` explicitly in `config.json`.
 
 To run another model, change `config.json` and run it again. Each model
 writes its own file.
@@ -36,7 +52,8 @@ writes its own file.
 ## Mark the answers
 
 Open the CSV and fill in the `verdict` column for each row: correct, wrong,
-hallucinated, or partial.
+hallucinated, or partial. Use `notes` for the evidence behind that verdict —
+what was wrong, what you checked, what you couldn't verify.
 
 ## Merge the results
 
