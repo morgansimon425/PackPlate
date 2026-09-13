@@ -16,7 +16,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).parent
 RESULTS_DIR = ROOT / "results_prompts"
-FIELDNAMES = ["prompt_id", "category", "source", "base_starters", "new_modules", "model", "web", "response", "verdict", "seconds", "error"]
+FIELDNAMES = ["prompt_id", "category", "source", "base_starters", "new_modules", "model", "model_id", "provider", "web", "response", "verdict", "notes", "seconds", "error"]
 MANIFEST_FIELDS = ["id", "name", "source", "base_starters", "new_modules", "runnable"]
 
 # proj1b: three cloud LLMs + one local (Ollama-class). See config.example.json.
@@ -89,9 +89,12 @@ def main():
                     "base_starters": p["base_starters"],
                     "new_modules": p["new_modules"],
                     "model": m,
+                    "model_id": r.get("model_id", ""),
+                    "provider": r.get("provider", ""),
                     "web": r.get("web", ""),
                     "response": r.get("response", ""),
                     "verdict": r.get("verdict", ""),
+                    "notes": r.get("notes", ""),
                     "seconds": r.get("seconds", ""),
                     "error": r.get("error", ""),
                 })
@@ -103,9 +106,12 @@ def main():
                     "base_starters": p["base_starters"],
                     "new_modules": p["new_modules"],
                     "model": m,
+                    "model_id": "",
+                    "provider": "",
                     "web": "",
                     "response": "_not run_",
                     "verdict": "",
+                    "notes": "",
                     "seconds": "",
                     "error": "",
                 })
@@ -118,6 +124,14 @@ def main():
 
     print(f"prompt set: {prompt_set}")
     print(f"models found: {', '.join(models)}")
+    ids = {m: next((r["model_id"] for r in rows if r["model"] == m and r["model_id"]), "") for m in models}
+    unknown = [m for m, i in ids.items() if not i]
+    for m, i in ids.items():
+        if i:
+            print(f"  {m}: {i}")
+    if unknown:
+        print(f"  NO model_id recorded for: {', '.join(unknown)} - these rows predate the "
+              f"model_id column. Fill it in by hand or re-run with overwrite.")
     print(f"wrote {out} ({len(rows)} rows = {len(prompts)} prompts x {len(models)} model(s))")
     if len(models) < EXPECTED_MODELS:
         print(f"NOTE: only {len(models)}/{EXPECTED_MODELS} models have results in {RESULTS_DIR} "

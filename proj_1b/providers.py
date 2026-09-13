@@ -17,6 +17,7 @@ environment variable (never store keys in config.json).
 
 import json
 import os
+import re
 import shutil
 import subprocess
 import tempfile
@@ -93,6 +94,15 @@ def _resolve_cli(name):
     return resolved
 
 
+def _redact_key(url):
+    """Strip an API key out of a URL before it ever reaches a log, an
+    exception message, or a results CSV. An API-key provider's URL carries
+    its key as a query param (?key=...), and results_prompts/*.csv gets
+    committed -- proj1b's repo is public, so a leaked key here is a real,
+    public secret leak, not just a log-noise annoyance."""
+    return re.sub(r"([?&]key=)[^&\s]+", r"\1REDACTED", url)
+
+
 def _post_json(url, payload, headers=None, timeout=180):
     data = json.dumps(payload).encode("utf-8")
     req = urllib.request.Request(url, data=data, headers=headers or {"Content-Type": "application/json"})
@@ -101,7 +111,7 @@ def _post_json(url, payload, headers=None, timeout=180):
             return json.loads(resp.read().decode("utf-8"))
     except urllib.error.HTTPError as exc:
         body = exc.read().decode("utf-8", errors="replace")
-        raise RuntimeError(f"HTTP {exc.code} from {url}: {body[:500]}") from None
+        raise RuntimeError(f"HTTP {exc.code} from {_redact_key(url)}: {body[:500]}") from None
 
 
 def call_ollama(cfg, prompt, file_access=False, session=None, web_access=False):
@@ -332,7 +342,10 @@ def call_cli(cfg, prompt, file_access=False, session=None, web_access=False):
             # (unlike the other two CLIs), which proj1a noted and accepted.
             cmd = [_resolve_cli("codex"), "exec", "-s", "read-only"]
             if web_access and cfg.get("codex_search", True):
-                cmd.append("--search")
+                # `--search` only exists on the interactive `codex` command,
+                # not `codex exec` -- the config-override spelling is the
+                # one that actually enables the web_search tool here.
+                cmd += ["-c", "tools.web_search=true"]
             if model:
                 cmd += ["-m", model]
             cmd += ["-o", tmp_path]
@@ -343,7 +356,7 @@ def call_cli(cfg, prompt, file_access=False, session=None, web_access=False):
                                     encoding="utf-8", errors="replace", timeout=eff_timeout)
             if result.returncode != 0:
                 raise RuntimeError(f"codex CLI failed (exit {result.returncode}): {result.stderr[:500]}. "
-                                   f"If this mentions an unknown '--search' flag, set "
+                                   f"If this mentions the web_search tool, set "
                                    f"\"codex_search\": false in config.json.")
             return Path(tmp_path).read_text(encoding="utf-8").strip()
         finally:

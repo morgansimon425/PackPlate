@@ -1,7 +1,7 @@
 id,name,source,base_starters,new_modules,runnable
 P1,Rivals + feature matrix + URL check,combination,"[1,3]",PackPlate 4-feature yes/no/unknown matrix; two-model/URL rule inline,true
-P2,"The gap, with receipts",combination,"[7,2]",,false
+P2,"The gap, with receipts",combination,"[7,2]",,true
 P3,Mission + metric + stakeholders,combination,"[8,5]",M0 measurable-claim requirement (metric + baseline + threshold),true
 P4,Milestones + data-dependency,combination,"[9,6]",data-dependency stress test,true
 P5,Support material,enriched,[4],"PackPlate-exposure focus (allergen labeling, scraping ToU, data-protection)",true
-P6,Red team + allergen liability,enriched,[10],allergen-liability red-team (plaintiff / allergic-parent persona),false
+P6,Red team + allergen liability,enriched,[10],allergen-liability red-team (plaintiff / allergic-parent persona),true

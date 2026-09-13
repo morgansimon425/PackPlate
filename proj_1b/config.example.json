@@ -1,15 +1,17 @@
 {
-  "_comment": "Copy this file to config.json and edit it. config.json is gitignored so everyone keeps their own local copy without stepping on teammates. The default run set is the six team-enriched prompts; use prompt_set raw_starters to run the 12 official prompts instead.",
+  "_comment": "Copy this file to config.json and edit it. config.json is gitignored so everyone keeps their own local copy without stepping on teammates. The default run set is the six team-enriched prompts; use prompt_set raw_starters to run the 12 official prompts instead. ALWAYS set \"model\" explicitly -- without it a CLI uses whatever it defaults to that day, which is not reproducible and leaves model_id blank in the results.",
 
   "name": "claude-pro-cli",
   "provider": "cli",
   "cli": "claude",
+  "model": "opus-5",
   "chain": false,
 
   "_model_1_claude_pro_subscription": {
     "name": "claude-pro-cli",
     "provider": "cli",
     "cli": "claude",
+    "model": "opus-5",
     "_setup": "one-time: `claude login` (do NOT set ANTHROPIC_API_KEY in your environment, or the CLI uses that instead of your subscription)",
     "chain": false,
     "_note": "the only config that COULD chain, but we run it unchained so all four models receive identical inputs. Cross-prompt dependencies are handled explicitly by <<FROM:>> instead."
@@ -18,6 +20,7 @@
     "name": "chatgpt-plus-codex-cli",
     "provider": "cli",
     "cli": "codex",
+    "model": "sol-5.6",
     "chain": false,
     "codex_search": true,
     "_setup": "one-time: `npm install -g @openai/codex`, then `codex login` (sign in with your ChatGPT account)",
@@ -27,12 +30,13 @@
   "_model_3_gemini_PREFERRED_web_capable": {
     "name": "gemini-grounded-api",
     "provider": "google",
-    "model": "gemini-2.0-flash",
+    "model": "gemini-3.5-flash",
     "api_key_env": "GOOGLE_API_KEY",
     "grounding": true,
     "chain": false,
     "_setup": "free-tier key from https://aistudio.google.com/apikey, then set GOOGLE_API_KEY in your environment (never in this file)",
-    "_web": "grounding:true enables Google Search grounding. This is the recommended Gemini config for proj1b -- the agy CLI below cannot search at all."
+    "_web": "grounding:true enables Google Search grounding. This is the recommended Gemini config for proj1b -- the agy CLI below cannot search at all.",
+    "_model_note": "gemini-2.0-flash was retired June 1 2026; gemini-3.5-flash is current as of Sept 2026. Check https://ai.google.dev/gemini-api/docs/deprecations if this errors."
   },
   "_model_3_alt_gemini_via_antigravity_NO_WEB": {
     "name": "gemini-antigravity-cli",
@@ -70,7 +74,7 @@
     "_google_example": {
       "name": "gemini-flash",
       "provider": "google",
-      "model": "gemini-2.0-flash",
+      "model": "gemini-3.5-flash",
       "api_key_env": "GOOGLE_API_KEY",
       "chain": false
     }

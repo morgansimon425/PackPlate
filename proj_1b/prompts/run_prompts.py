@@ -37,7 +37,7 @@ sys.path.insert(0, str(ROOT.parent))  # providers.py lives one level up, in proj
 from providers import call_model, web_capability
 
 RESULTS_DIR = ROOT / "results_prompts"
-FIELDNAMES = ["prompt_id", "category", "source", "base_starters", "new_modules", "model", "web", "response", "verdict", "seconds", "error"]
+FIELDNAMES = ["prompt_id", "category", "source", "base_starters", "new_modules", "model", "model_id", "provider", "web", "response", "verdict", "notes", "seconds", "error"]
 
 # proj1b prompts get web access unless they say otherwise -- the opposite
 # of proj1a's default. See providers.call_cli's TOOL POSTURE note.
@@ -89,7 +89,23 @@ def _normalize_prompt(prompt):
     return normalized
 
 
-def _prompt_row_metadata(prompt, model_name):
+def _model_identity(cfg):
+    """What actually answered, as opposed to what we named the config.
+
+    `name` is a label we chose; it does not record which model ran. D5 is a
+    model comparison, so the artifact has to say which models were compared.
+    """
+    provider = cfg.get("provider", "")
+    if provider == "cli":
+        provider = f"cli:{cfg.get('cli', '?')}"
+    # A CLI with no explicit model uses whatever that tool defaults to today,
+    # which is not reproducible -- record that rather than leaving it blank.
+    model_id = cfg.get("model") or ("(CLI default)" if cfg.get("provider") == "cli" else "")
+    return model_id, provider
+
+
+def _prompt_row_metadata(prompt, model_name, cfg=None):
+    model_id, provider = _model_identity(cfg) if cfg else ("", "")
     return {
         "prompt_id": prompt["id"],
         "category": prompt["category"],
@@ -97,6 +113,8 @@ def _prompt_row_metadata(prompt, model_name):
         "base_starters": json.dumps(prompt.get("base_starters", []), separators=(",", ":")),
         "new_modules": prompt.get("new_modules", ""),
         "model": model_name,
+        "model_id": model_id,
+        "provider": provider,
     }
 
 
@@ -159,6 +177,8 @@ def main():
         raise SystemExit("Missing config.json. Copy config.example.json to config.json and edit it first.")
     cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
     model_name = cfg["name"]
+    model_id, provider_label = _model_identity(cfg)
+    print(f"config '{model_name}' -> provider {provider_label}, model {model_id or '(unset)'}")
 
     prompts = load_prompts(cfg)
     check_blanks(prompts)
@@ -193,32 +213,61 @@ def main():
                 r.setdefault("base_starters", "[]")
                 r.setdefault("new_modules", "")
                 r.setdefault("web", "")  # backfill rows logged before this column existed
+                r.setdefault("notes", "")  # ditto
+                r.setdefault("model_id", "")
+                r.setdefault("provider", "")
                 if "PENDING" in r.get("verdict", ""):
                     continue  # a <<FROM:>> reference could not resolve last run -- retry it
                 if not r.get("error") and (r.get("response") or "not runnable" in r.get("verdict", "")):
                     existing[r["prompt_id"]] = r
 
     rows = []
+
+    def _flush():
+        # Rewrite after every prompt -- cached or freshly run -- so a crash
+        # mid-run keeps what we have. A prompt processed only when NOT cached
+        # left every later cached prompt unwritten to disk: the in-memory
+        # `rows` list still had all six, but if the last two or three prompts
+        # in file order were all cache hits, the file on disk silently kept
+        # whatever had been written as of the last live call and dropped the
+        # rest -- discovered when a targeted P2-only re-run truncated every
+        # results CSV in the repo to just P1 and P2. Every branch must call
+        # this, cached included.
+        with open(out_csv, "w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames=FIELDNAMES)
+            writer.writeheader()
+            writer.writerows(rows)
+
     # Responses keyed by prompt id, so a later prompt can paste an earlier one
     # in via <<FROM: X>>. Seeded from rows we already have, so a re-run can
     # still resolve references to prompts that are being skipped.
     responses = {pid: r.get("response", "") for pid, r in existing.items()}
     for p in prompts:
         if p["id"] in existing:
+            prior = existing[p["id"]]
+            prior_id = prior.get("model_id", "")
+            if prior_id and model_id and prior_id != model_id:
+                # The skip check keys on the config `name`, not on the model.
+                # Swapping models while keeping the name would silently serve
+                # stale rows, so say so loudly instead.
+                print(f"WARNING {p['id']}: existing row was produced by '{prior_id}' but this "
+                      f"config is '{model_id}'. Change \"name\" or set \"overwrite\": true "
+                      f"to re-run.")
             print(f"skip {p['id']} (already have a result for {model_name})")
-            rows.append(existing[p["id"]])
+            rows.append(prior)
+            _flush()
             continue
 
         if p.get("_replaced_by"):
             print(f"skip {p['id']} (replaced by {p['_replaced_by']})")
-            row = _prompt_row_metadata(p, model_name)
+            row = _prompt_row_metadata(p, model_name, cfg)
             row.update({"web": "", "response": "", "verdict": f"N/A - replaced by {p['_replaced_by']}",
-                        "seconds": "", "error": ""})
+                        "notes": "", "seconds": "", "error": ""})
         elif not p.get("runnable", True):
             print(f"skip {p['id']} (marked not runnable - {p['source']})")
-            row = _prompt_row_metadata(p, model_name)
+            row = _prompt_row_metadata(p, model_name, cfg)
             row.update({"web": "", "response": "", "verdict": "N/A - not runnable, see source",
-                        "seconds": "", "error": ""})
+                        "notes": "", "seconds": "", "error": ""})
         else:
             wants_web = p.get("web_access", WEB_DEFAULT)
             web = web_capability(cfg, wants_web)
@@ -226,14 +275,11 @@ def main():
             if missing:
                 waiting = ", ".join(sorted(set(missing)))
                 print(f"skip {p['id']} (waiting on {waiting})")
-                row = _prompt_row_metadata(p, model_name)
+                row = _prompt_row_metadata(p, model_name, cfg)
                 row.update({"web": "", "response": "", "verdict": f"PENDING - waiting on {waiting}",
-                            "seconds": "", "error": ""})
+                            "notes": "", "seconds": "", "error": ""})
                 rows.append(row)
-                with open(out_csv, "w", newline="", encoding="utf-8") as f:
-                    writer = csv.DictWriter(f, fieldnames=FIELDNAMES)
-                    writer.writeheader()
-                    writer.writerows(rows)
+                _flush()
                 continue
 
             pasted = FROM_RE.findall(p["text"])
@@ -252,17 +298,13 @@ def main():
 
             responses[p["id"]] = response
 
-            row = _prompt_row_metadata(p, model_name)
-            row.update({"web": web, "response": response, "verdict": "",
+            row = _prompt_row_metadata(p, model_name, cfg)
+            row.update({"web": web, "response": response, "verdict": "", "notes": "",
                         "seconds": round(time.time() - start, 1), "error": error})
             print(f"  -> {len(response)} chars back" + (f"  [ERROR: {error}]" if error else ""))
 
         rows.append(row)
-        # rewrite after every prompt so a crash mid-run keeps what we have
-        with open(out_csv, "w", newline="", encoding="utf-8") as f:
-            writer = csv.DictWriter(f, fieldnames=FIELDNAMES)
-            writer.writeheader()
-            writer.writerows(rows)
+        _flush()
 
     print(f"\nDone. {out_csv} has {len(rows)} row(s) "
           f"({sum(1 for r in rows if r['category'] == 'starter')} starter, "
@@ -276,6 +318,7 @@ def main():
         print("NOTE: at least one prompt asked for web access this model cannot provide "
               "(web=unavailable). Those answers are recall, not evidence -- say so in D5.")
     print("Read the responses, fill in the `verdict` column by hand (correct / wrong / hallucinated / partial),")
+    print("and use `notes` for the evidence: what was wrong, what you checked, what you could not verify.")
     print("commit this CSV, then once everyone's done: python build_all_models.py")
 
 
