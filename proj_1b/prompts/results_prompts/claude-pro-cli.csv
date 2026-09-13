@@ -1,5 +1,5 @@
-prompt_id,category,source,base_starters,new_modules,model,web,response,verdict,seconds,error
-P1,enriched,combination,"[1,3]",PackPlate 4-feature yes/no/unknown matrix; two-model/URL rule inline,claude-pro-cli,on,"## Method note
+prompt_id,category,source,base_starters,new_modules,model,model_id,provider,web,response,verdict,notes,seconds,error
+P1,enriched,combination,"[1,3]",PackPlate 4-feature yes/no/unknown matrix; two-model/URL rule inline,claude-pro-cli,opus-5,claude,on,"## Method note
 
 Everything below is a product I could confirm exists with a live URL. Four products that came up in searching — Bite / Bite+ (the Sodexo vs. Compass naming is genuinely muddled across sources), Fig, HappyCow, Zabihah, Spokin — I left out or demoted: they're either single-diet finders that don't touch campus dining, or I couldn't cleanly confirm which vendor ships which app. I'd rather hand you nine solid rows plus one honest ""unconfirmed"" than ten tidy ones.
 
@@ -52,9 +52,142 @@ Two warnings the table surfaces:
 
 Column (d) is your cheapest differentiator: nobody in this table does explicit per-field ""we don't have this."" It costs you almost nothing in engineering and it's the most defensible claim in your pitch.
 
-**Sources:** [NC State Dining](https://dining.ncsu.edu/) · [Portal launch notice](https://dining.ncsu.edu/news/dining-menus-no-longer-in-oncampus-app/07-25-2025) · [OnCampus app](https://apps.apple.com/us/app/oncampus/id431844600) · [Nutrislice](https://nutrislice.com/) · [Stony Brook Nutrislice guide](https://www.stonybrook.edu/dining/where-to-eat/how-to-use-nutrislice.html) · [Dine On Campus](https://apps.apple.com/us/app/dine-on-campus/id1170602720) · [Waitz](https://apps.apple.com/us/app/waitz-university/id1346827447) · [Occuspace NC State case study](https://www.occuspace.com/case-studies/case-study-nc-state-university) · [Google Maps busyness](https://support.google.com/maps/answer/11323117?hl=en) · [Google Maps 101 blog](https://blog.google/products-and-platforms/products/maps/maps101-popular-times-and-live-busyness-information/) · [SupperSquad](https://apps.apple.com/us/app/suppersquad/id6745744639) · [Picknic](https://picknic.app/) · [MyFitnessPal Premium](https://support.myfitnesspal.com/hc/en-us/articles/360032625951-What-are-the-features-of-MyFitnessPal-Premium) · [NC State + MyFitnessPal](https://campusenterprises.ncsu.edu/2011/08/23/university-dining-utilizes-myfitnesspal-com-as-a-nutrition-tool/) · [Grubhub Campus](https://www.grubhub.com/about/campus) · [Grubhub Onsite](https://onsite.grubhub.com/who-we-serve/college-campuses/)",,222.2,
-P2,enriched,combination,"[7,2]",,claude-pro-cli,,,"N/A - not runnable, see source",,
-P3,enriched,combination,"[8,5]",M0 measurable-claim requirement (metric + baseline + threshold),claude-pro-cli,off,"## Part 1 — Three candidate missions
+**Sources:** [NC State Dining](https://dining.ncsu.edu/) · [Portal launch notice](https://dining.ncsu.edu/news/dining-menus-no-longer-in-oncampus-app/07-25-2025) · [OnCampus app](https://apps.apple.com/us/app/oncampus/id431844600) · [Nutrislice](https://nutrislice.com/) · [Stony Brook Nutrislice guide](https://www.stonybrook.edu/dining/where-to-eat/how-to-use-nutrislice.html) · [Dine On Campus](https://apps.apple.com/us/app/dine-on-campus/id1170602720) · [Waitz](https://apps.apple.com/us/app/waitz-university/id1346827447) · [Occuspace NC State case study](https://www.occuspace.com/case-studies/case-study-nc-state-university) · [Google Maps busyness](https://support.google.com/maps/answer/11323117?hl=en) · [Google Maps 101 blog](https://blog.google/products-and-platforms/products/maps/maps101-popular-times-and-live-busyness-information/) · [SupperSquad](https://apps.apple.com/us/app/suppersquad/id6745744639) · [Picknic](https://picknic.app/) · [MyFitnessPal Premium](https://support.myfitnesspal.com/hc/en-us/articles/360032625951-What-are-the-features-of-MyFitnessPal-Premium) · [NC State + MyFitnessPal](https://campusenterprises.ncsu.edu/2011/08/23/university-dining-utilizes-myfitnesspal-com-as-a-nutrition-tool/) · [Grubhub Campus](https://www.grubhub.com/about/campus) · [Grubhub Onsite](https://onsite.grubhub.com/who-we-serve/college-campuses/)",correct,"Strongest P1 of the four. Opens with a method note naming five products it deliberately excluded rather than padding to ten - the honest-omission behaviour the prompt asked for. VERIFIED BY US: the OnCampus App Store ID (431844600) is right, unlike another model's; Waitz/Occuspace really is deployed at NC State for libraries and Carmichael but not dining; NC State Dining really did promote MyFitnessPal as a nutrition tool. Correctly identifies CBORD NetNutrition as the underlying source. Reports its own failed fetch of the portal (redirect loop) instead of hiding it. UNVERIFIED: SupperSquad, Picknic, the Dine On Campus rating figures, and the MyFitnessPal pricing, which it already flags as third-party sourced. Column (d) 'Unknown' is used consistently rather than collapsed to 'No'.",222.2,
+P2,enriched,combination,"[7,2]",,claude-pro-cli,opus-5,claude,on,"I went after the refutation first. It's stronger than the confirmation. Here's the full interrogation.
+
+---
+
+# Verdict up front
+
+**The gap is literally true and commercially empty.** No tool does what you describe — I confirmed that. But three things kill it as a *headline*:
+
+1. NC State's portal is CBORD NetNutrition, which **already lets one user check multiple allergens at once and stack dietary-preference filters**. Multi-person filtering is the union of exclusion sets — the math is already shipped. Your delta is a cross-location rollup and per-person UI labels.
+2. The search space is **five dining halls**. A tool whose output is a choice among five, where the answer is probably always ""Fountain,"" is not a product.
+3. Someone already shipped your exact idea off-campus and **nobody uses it**.
+
+Your differentiators (group filtering, crowd levels, completeness reporting) are precisely the three things with zero documented demand — and crowd levels is not buildable in a month at any quality. Recommendation at the bottom.
+
+---
+
+# 1. CONFIRM — five findable items
+
+Honest framing first: all five confirm **fragmentation and per-item drudgery**. None confirms group filtering. I'm reporting what the evidence supports, not what the claim needs.
+
+| # | Item | Status |
+|---|---|---|
+| 1 | NC State split menus from hours, July 2025 | **FOUND** — [dining.ncsu.edu news](https://dining.ncsu.edu/news/dining-menus-no-longer-in-oncampus-app/07-25-2025) |
+| 2 | Six NC State students built FoodFinder *because of* that split | **FOUND** — [GitHub](https://github.com/NCSU-App-Development-Club/FoodFinder), 88 commits, 6 contributors |
+| 3 | Official workflow is per-item manual clicking | **FOUND** — [r/NCSU thread](https://www.reddit.com/r/NCSU/comments/1kn8fqg/dining_hall_food/) |
+| 4 | NC State *lost* macro tracking tied to menus | **FOUND** — OnCampus v8.2.0 release note, 26 Jul 2025 |
+| 5 | Restricted diets face thin options, and distrust what exists | **FOUND** — [Technician, 22 Jan 2025](https://technicianonline.com/75807/news/campus-dining-provides-accommodations-for-students-with-religious-dietary-restrictions/) |
+| — | Anyone asking to filter for several people at once | **NOT FOUND** — searched Reddit, Devpost, App Store, student press |
+| — | Anyone asking about dining hall crowd levels | **NOT FOUND** |
+| — | A dead product that tried group campus-diet filtering | **NOT FOUND** — no corpse, because nobody tried |
+
+### Themes
+
+**A. Fragmentation — the information is in two places.** Strongest theme, and it is *not* about groups.
+> ""finding the dining menus inefficient... the data is everywhere"" — UT Austin CS student, [The Daily Texan](https://thedailytexan.com/2023/10/27/ut-dining-app-makes-menus-more-accessible-to-students/), 27 Oct 2023
+
+**B. Per-item drudgery — no filter-level view.** A student describing the official method: open a hall's menu, click each item individually to see its ingredient list. One at a time.
+
+**C. Supply, not information.** Izzothedj on eating vegetarian at NC State: mostly salad, steamed vegetables, sides; better options exist but cost money. Spooky-man098: Clark and Case have roughly four options total. **A filter cannot fix a menu with four items.** This theme actively undermines you — filtering assumes abundance to filter *through*.
+
+**D. App unreliability and lost tracking.**
+> ""barely functioning dumpster fire"" — AdmiralVibe, 1 star, 11 Sept 2023, wanting menus for macros
+
+Note your own observation: that's ~2 years *before* removal. The feature was failing while it existed.
+
+**E. Cross-contact distrust — a data-quality problem your tool inherits.** The Hindu YUVA president reports many Hindu students avoid the black bean burger over cross-contact fears. No filter solves this; the item is *labelled* vegan and still not trusted.
+
+⚠️ **Quote hygiene:** most of your collected evidence is paraphrase, not verbatim. Only ""dumpster fire"" and the Daily Texan phrases are safe to quote directly. Go back to the sources before the poster — a paraphrase in quotation marks is the kind of thing a judge checks.
+
+---
+
+# 2. REFUTE — what I actively went looking for
+
+### R1. Your headline feature is already ~80% shipped by CBORD. **FOUND — decisive**
+
+NC State's portal is CBORD NetNutrition at `netmenu2.cbord.com/NetNutrition/ncstate-dining` (confirmed in the [launch announcement](https://dining.ncsu.edu/news/dining-menus-no-longer-in-oncampus-app/07-25-2025); NC State's own [Special Dietary Needs page](https://dining.ncsu.edu/nutrition/special-dietary-needs/) calls it ""the Net Nutrition website"").
+
+Per [WSU's NetNutrition guide](https://dining.wsu.edu/nutrition/navigation-netnutrition/) — the same product, same UI:
+
+> ""Check the box next to the food allergens/intolerances you must avoid."" Items containing them ""will be deleted from your menu choices.""
+
+> ""You may choose to sort menu items by preferences"" — ""Only foods that meet your selected preference will appear in the menu.""
+
+**Multiple checkboxes, simultaneously, plus stacked preference filters.** Four people's restrictions = one longer checkbox list. Your ""each person applies their own constraints"" is a UI affordance over arithmetic that already runs.
+
+What genuinely *is* missing: the filter appears to apply **per selected location**, so there's no ""show me all five halls at once"" view. That is your entire real delta — one cross-location rollup.
+
+🔴 **Action before you commit:** open that portal in a browser and confirm whether filters persist across locations. I hit a redirect loop (session-cookie ASP.NET app) and could not verify NC State's specific instance. **If filters do span locations, the gap closes to zero.** This is the single load-bearing fact in your whole pitch and it costs ten minutes to check.
+
+### R2. Five locations. **FOUND**
+
+[NC State lists 5 dining halls](https://dining.ncsu.edu/locations/) — Fountain, Clark, Case, University Towers, One Earth — of 26 total locations. Combine with Spooky-man098: Fountain has the most variety, Clark and Case have ~4 options. So the group answer is *knowably, statically* Fountain. A recommendation engine over five options where one dominates produces a constant. At the poster session, ""which locations work for everyone?"" → ""Fountain, same as last week"" is a demo that kills itself.
+
+### R3. The off-campus precedent proves the opposite of what you cite it for. **FOUND — hard**
+
+Your claim leans on ""multi-person filtering exists only for off-campus restaurant finders,"" implying validation. I found the product:
+
+**[SupperSquad](https://apps.apple.com/us/app/suppersquad/id6745744639)** (2025, iOS + iMessage) — ""helps groups quickly choose restaurants that fit everyone's dietary needs — vegan, gluten-free, allergy-free."" Enter group size, list everyone's allergies, get restaurants that accommodate, group votes in the thread.
+
+That is your product, off-campus, already shipped. Its App Store status: **not enough ratings to display an average.** Also found [Yumi](https://devpost.com/software/yumi) (HackHarvard 2025, 3rd Best Overall) — merges friends' preferences for group restaurant picks; group dietary restrictions listed as *future* work even by a prize-winning team.
+
+So the category exists and has no traction. You cited its existence as evidence of demand. It's evidence of the reverse.
+
+### R4. A second competitor, with your macro feature. **FOUND**
+
+**[UPlate](https://u-plate.com/)** — ""the only nutrition app built for campus dining halls."" Filters by vegan, vegetarian, gluten-free, nut-free, dairy-free, halal, kosher, custom ingredients; macros; social features; iOS **and** Android; $4.99/mo Pro tier. Currently Purdue only, actively expanding, explicit ""request your school.""
+
+They already ship the thing AdmiralVibe begged for. A funded-looking product one email from entering your market is a real risk for a project you'd want to outlive the semester.
+
+### R5. Your differentiator's failure mode is medical. **FOUND**
+
+NC State's own [disclaimer](https://dining.ncsu.edu/location/case/): because of meal volume and vendor product changes, it **cannot be guaranteed that every allergen will be identified and labeled.**
+
+FoodFinder surfaces *flags* — the user judges. You'd surface a *verdict*: ""Case works for all four of you."" You'd be converting admittedly-unreliable per-item data into a confident group-level claim, compounding four people's risk into one green checkmark. The group framing makes your posture strictly worse than the competitor's on the one axis that matters most.
+
+### R6. Counter-evidence on the premise itself. **FOUND (from your own file)**
+
+A freshman with allergies praised the app for showing what was safe; a student with a severe nut allergy in Spokin's NC State guide says everything is labelled and she feels comfortable eating on campus. Plus: App Store sample is 43 ratings at 4.8 average. Your problem statement rests on 2 negative reviews out of 43.
+
+---
+
+# 3. Can you build it in 160 person-hours?
+
+Scoring your three differentiators:
+
+| Feature | Feasible in a month? | Why |
+|---|---|---|
+| Group dietary filtering | ✅ **Yes, 2–3 days** | Set intersection over tags. Genuinely cheap. |
+| Crowd levels | ❌ **No** | **No data source exists.** No occupancy API. Options are user check-ins (cold-start: you will not have users in a month) or a Campus Enterprises partnership (won't close in a month). **Cut this now.** |
+| Data-completeness reporting | ❌ **No** | Requires a ground-truth baseline of what *should* be labelled. You don't have one and can't build one in four weeks. |
+| NetNutrition scraper | ⚠️ **This is the actual project** | Session-based ASP.NET, not a JSON API — the redirect loop I hit is that behavior. 5 halls × meals × items × ingredient lists, nightly. Budget most of your engineering here. |
+| Testing with real users | ⚠️ **Hard** | Recruiting four students with four *genuinely different* restrictions and observing a real group meal decision, inside four weeks, while building. Plan this week one or it won't happen. |
+
+The pattern: **your cheap feature is the undemanded one, and your two demanded-sounding features are unbuildable.** The scraper — unglamorous, already done by FoodFinder — eats your month.
+
+---
+
+# Recommendation
+
+Don't kill the project. Kill the headline.
+
+**Drop:** crowd levels (no data), completeness reporting (no baseline), group filtering as the *lead* claim (no demand, competitor's safety posture beats yours).
+
+**Lead with what has five pieces of NC State evidence behind it:** one page that answers *""which of the five halls is open right now and has at least N items I can actually eat""* — cross-location, which NetNutrition appears not to do, and restoring the macro view NC State deleted in July 2025. Your differentiators become **platform** (FoodFinder is Android-only — ship web, works on iPhones) and **cross-location ranking**.
+
+**Keep group filtering as a cheap feature, honestly positioned:** a shareable link carrying several tag sets. Three days. At the poster, it's ""and it generalizes to N people"" — a nice closing beat, not a load-bearing claim you can't defend when someone asks for your evidence.
+
+**Do these two things this week:** open the NetNutrition portal and test whether filters span locations (R1 — settles everything), and email FoodFinder's six contributors. They're NC State students two semesters into your problem space. Collaboration or clear differentiation both beat discovering them at the poster session.
+
+---
+
+Sources: [NC State portal launch](https://dining.ncsu.edu/news/dining-menus-no-longer-in-oncampus-app/07-25-2025) · [Special Dietary Needs](https://dining.ncsu.edu/nutrition/special-dietary-needs/) · [Locations](https://dining.ncsu.edu/locations/) · [Case disclaimer](https://dining.ncsu.edu/location/case/) · [WSU NetNutrition guide](https://dining.wsu.edu/nutrition/navigation-netnutrition/) · [FoodFinder](https://github.com/NCSU-App-Development-Club/FoodFinder) · [SupperSquad](https://apps.apple.com/us/app/suppersquad/id6745744639) · [UPlate](https://u-plate.com/) · [Yumi](https://devpost.com/software/yumi) · [Technician](https://technicianonline.com/75807/news/campus-dining-provides-accommodations-for-students-with-religious-dietary-restrictions/) · [Daily Texan](https://thedailytexan.com/2023/10/27/ut-dining-app-makes-menus-more-accessible-to-students/) · [r/NCSU](https://www.reddit.com/r/NCSU/comments/1kn8fqg/dining_hall_food/)
+
+Want this as a shareable page for your three teammates?",correct,"The most valuable response in the run - it refutes the gap sentence we gave it. Finds that CBORD NetNutrition already supports checking multiple allergens at once plus stacked dietary filters, citing WSU's guide to the same product, which reduces our group-filtering differentiator to a cross-location rollup. Finds UPlate (u-plate.com), a campus dining nutrition app at Purdue that is actively expanding. Correctly reframes SupperSquad as evidence AGAINST demand, since its App Store listing has too few ratings to show an average - we had cited its existence as validation. Also notes NC State has only five dining halls, so a group recommender over that set likely returns a constant. UNVERIFIED AND LOAD-BEARING: whether NC State's specific NetNutrition instance persists filters across locations. It flags this itself as a ten-minute browser check and as the fact the whole pitch turns on.",298.2,
+P3,enriched,combination,"[8,5]",M0 measurable-claim requirement (metric + baseline + threshold),claude-pro-cli,opus-5,claude,off,"## Part 1 — Three candidate missions
 
 ### Mission A — the group problem
 
@@ -98,8 +231,8 @@ At 12:15 on a Tuesday a meal-plan student walks to Fountain, sees the line doubl
 | The teammate paged at 3 a.m. when ingest breaks | A silent failure serving Tuesday's menu on Friday | The app fails loud: if the last successful ingest is over 24 hours old, every menu carries a stale banner instead of rendering as current, and each cron run writes a row so diagnosis is one query |
 | CSC 510 course staff / graders | An ungradeable demo that dies because dining.ncsu.edu is down at 9 a.m. | pytest runs against a checked-in fixture snapshot of the Dining HTML/JSON, and the demo can run entirely offline from the same fixtures |
 | Next semester's team inheriting the repo | Cloning it and getting an empty, unrunnable app | `docker compose up` seeds the fixture dataset, so one command yields a working app with real-shaped data |
-| Screen-reader and colorblind users (Disability Resource Office) | Status encoded only as a red/green dot | Crowd level and allergen state are text + icon, never color alone, and all filters are keyboard-navigable |",,120.4,
-P4,enriched,combination,"[9,6]",data-dependency stress test,claude-pro-cli,off,"## Part 1 — Data risk
+| Screen-reader and colorblind users (Disability Resource Office) | Status encoded only as a red/green dot | Crowd level and allergen state are text + icon, never color alone, and all filters are keyboard-navigable |",correct,"Three genuinely distinct missions rather than one reworded three times - the only model to manage that. Each carries a named non-copyable detail and a stated method for proving its metric in a week. Flags its own weakness unprompted: the six-minute and four-minute baselines in Missions A and B are estimates, and it says to measure them in week one or the claim is unprovable by construction. Stakeholder table is the longest and most specific of the four, including adversarial and operational stakeholders (a bad-faith crowd reporter, the teammate paged at 3am, next semester's team). Nothing factual to verify - this prompt is generative rather than research.",120.4,
+P4,enriched,combination,"[9,6]",data-dependency stress test,claude-pro-cli,opus-5,claude,off,"## Part 1 — Data risk
 
 **Scale:** likelihood/impact = H / M / L. ""Buildable in one month"" means it fits inside the 160 person-hour budget alongside the features.
 
@@ -184,8 +317,8 @@ Not forecast, so not classified. One note: the harness that runs the same prompt
 ### Two things to fix in the draft
 
 1. **Four of five NOW milestones have no test.** Only the filter does. Ingestion is the item most likely to break silently and it has no acceptance criterion at all — write one now, in the form ""a fresh clone, given a recorded snapshot, produces the expected N locations and M items, and a corrupted snapshot leaves the previous dataset served.""
-2. **""Ingest on a schedule"" is doing a lot of quiet work.** Split it into: (a) the FoodFinder capability spike, ~½ day, blocking; (b) the snapshot + last-known-good layer, ~1 day; (c) the parser and schema; (d) the scheduler and alerting. Four trackable things instead of one item that's 80% done for three weeks.",,128.5,
-P5,enriched,enriched,[4],"PackPlate-exposure focus (allergen labeling, scraping ToU, data-protection)",claude-pro-cli,on,"## Reading budget first, because it decides everything
+2. **""Ingest on a schedule"" is doing a lot of quiet work.** Split it into: (a) the FoodFinder capability spike, ~½ day, blocking; (b) the snapshot + last-known-good layer, ~1 day; (c) the parser and schema; (d) the scheduler and alerting. Four trackable things instead of one item that's 80% done for three weeks.",correct,"Best data-risk analysis of the four. The key insight no other model reached: FoodFinder is not a second source, it is a cache of the same NetNutrition source scraped daily by another team, so both paths break for the same reason at the same time. Correctly separates what we told it (robots.txt permits dining.ncsu.edu) from what remains unchecked (netmenu2.cbord.com robots and CBORD terms), and notes that permission to call FoodFinder's API is not a licence to reuse its scraper code. Names the FoodFinder nutrition-field question as a blocking week-1 spike rather than a task. Flags that four of five NOW milestones in our draft have no test at all, which is correct and which the prompt asked it to check.",128.5,
+P5,enriched,enriched,[4],"PackPlate-exposure focus (allergen labeling, scraping ToU, data-protection)",claude-pro-cli,opus-5,claude,on,"## Reading budget first, because it decides everything
 
 You have ~160 person-hours total for build *and* test. A defensible reading allocation is **10–14 person-hours (~7%)**, split across four people. So I've costed every MUST-READ, and the MUST tier below sums to roughly that. Anything that can't fit is in the **Out of budget** section at the end rather than dishonestly listed as a must.
 
@@ -406,8 +539,8 @@ If you read nothing else, these are the design changes the MUST tier implies, an
 - [N.C.G.S. Chapter 90, Article 25 – Dietetics/Nutrition](https://www.ncleg.gov/EnactedLegislation/Statutes/HTML/ByArticle/Chapter_90/Article_25.html) · [NCBDN – who is exempt](https://www.ncbdn.org/who-is-exempt-from-licensure-and-regulation-by-the-north-carolina-board-of-dietetics-nutrition)
 - [NC State Trademark Licensing – Student Use](https://trademarks.ncsu.edu/student-use/) · [Governing Policies](https://trademarks.ncsu.edu/trademark-licensing/tl-about-page-placeholder/governing-policies/)
 
-Want me to turn the MUST tier into a citation table (BibTeX or a markdown table with accessed-dates) for the report?",,235.6,
-P6,enriched,enriched,[10],allergen-liability red-team (plaintiff / allergic-parent persona),claude-pro-cli,off,"# Red team: PackPlate
+Want me to turn the MUST tier into a citation table (BibTeX or a markdown table with accessed-dates) for the report?",partial,"Extremely thorough and mostly well-sourced, with a genuine attempt to respect the reading budget - it costs every MUST-READ in minutes and adds an 'out of budget' section naming standards it deliberately excluded, which is what our added instruction was aiming for. Design changes it derives are concrete and cheap (localStorage over accounts, no colour-only allergen status, user-entered protein targets to stay inside the NC dietetics licensure exemption). VERIFIED BY US: NC State does mark nine major allergens plus pork. UNVERIFIED, NEEDS SPOT-CHECKING BEFORE THE REPORT: the claim that DOJ extended the Title II compliance date to 26 April 2027 (codex independently cites 2027, so two-model support, but neither is a primary check); the Federal Register document number; the NC dietetics statute section; several deep policy URLs. Marked partial only because the citation volume makes an unverified error likely somewhere.",235.6,
+P6,enriched,enriched,[10],allergen-liability red-team (plaintiff / allergic-parent persona),claude-pro-cli,opus-5,claude,off,"# Red team: PackPlate
 
 **Target: Mission B (allergen search).** I picked it because it's the one that survives its own plan. A depends on a six-minute baseline you haven't measured and a ""group chat can't decide"" premise that is a social problem wearing a software costume. C is dead on arrival by your own analysis — a crowd feature with no crowd is an empty map at demo time, and Waitz is already on your campus. B is the only one where the differentiator is a data model rather than a user base, which means four people can actually ship it and a grader can actually evaluate it.
 
@@ -507,4 +640,4 @@ Ship alongside it, if you have the hours:
 
 ---
 
-I'm not your lawyer and none of this is legal advice — it's the shape of the argument someone with standing would make. The parts you can act on this month are: count the unlabeled rate, check whether NetNutrition already filters, get ingest working by day 3, and delete the green state.",,150.9,
+I'm not your lawyer and none of this is legal advice — it's the shape of the argument someone with standing would make. The parts you can act on this month are: count the unlabeled rate, check whether NetNutrition already filters, get ingest working by day 3, and delete the green state.",correct,"Genuinely hostile, which most red-team prompts fail at. Strongest single point: our market survey marked NetNutrition 'No' for MULTI-person filtering but never established that SINGLE-person allergen filtering is absent - and the mission it attacks is a single-person product. It calls this the most alarming gap in the plan and it is right. Also argues adoption runs inverse to severity: the anaphylactic student cannot act on a tool that refuses to say 'safe', while the student who can act has a low-stakes need. The liability section quotes our own risk register back as the plaintiff's exhibit. Every attack ends with specific defeating evidence and a deadline. UNVERIFIED: the North Carolina contributory-negligence characterisation and the NetNutrition session-flow description.",150.9,
