@@ -1,0 +1,28 @@
+Arrow: Browser client ↔ API Routes (REST/JSON)
+
+Under load: Nothing between the client and a single-instance "FastAPI Application (monolith)" box — no LB, no replica count, no cache. Group-testing your own "<2 min" success metric means a room of students hitting the filter endpoint at the same moment. One process eats all of it.
+Week 3: No shared contract box (OpenAPI-generated TS types, or equivalent) is drawn between Browser client and API Routes. Two people work each side of this arrow independently; week 3 is when a field gets renamed on one side and not the other and nobody notices until demo.
+Merge conflicts: API Routes — every milestone (filtering, multi-person, crowd) adds endpoints to the same route file.
+Arrow (implicit): API Routes → Business Logic (filter engine | crowd aggregation)
+
+Under load: Filter engine and crowd aggregation share one box and, presumably, one process. If filter-engine logic for multi-person filtering (M3) is synchronous CPU work inside an async FastAPI app, it blocks the event loop — crowd report submissions stall behind someone else's filter query.
+Week 3: This box does double duty for two unrelated milestones (dietary filtering vs. crowd reports). That's the textbook god-module: whoever owns M2/M3 and whoever owns M4 are editing the same file by week 3.
+Merge conflicts: Business Logic — cite the box directly, it names both concerns in one place.
+Arrow: Data Access → PostgreSQL ("reads menus + crowd r/w")
+
+Under load: No cache box exists anywhere in the diagram. Menu/nutrition data is near-static but gets read fresh on every filter request; under concurrent load this is repeated joins against Postgres with no pooling/caching layer shown — connection exhaustion is the likely failure, not query latency.
+Week 3: The "crowd r/w" label implies read-modify-write on crowd level from concurrent requests (two students report "crowded" on the same location near-simultaneously). Nothing in the diagram enforces atomicity for that — the "single writer per table" note next to Postgres is an assumption, not a mechanism. Week 3 is when a race condition in crowd aggregation produces a nonsensical crowd level and nobody can reproduce it.
+Merge conflicts: Data Access / migrations — ingestion's Write box and this box both touch the menus table; schema changes from two directions collide in the migrations folder. UNKNOWN whether migrations are even versioned — not shown.
+Arrow: Write → PostgreSQL ("writes menu data")
+
+Under load: Not a load problem, it's an isolation problem — no staging/atomic-swap step shown between Normalize+Label and Write. If a scrape runs while Data Access is serving reads, users can be served half-updated menus mid-write.
+Week 3: Real risk is upstream schema drift — NC State's published dining page changes format (a redesign, a mid-semester hours update) and Parse/Normalize+Label breaks silently, since there's no validation/alerting box between ingestion and Postgres.
+Merge conflicts: Normalize + Label — this is where the dietary-label taxonomy (halal/vegan/allergen tags that M2's filter engine depends on) lives. The ingestion owner and the filter-engine owner will both need to change this box's output shape.
+Arrow: NC State Dining (external) → Fetch ("scheduled scrape")
+
+Under load: N/A in the classic sense, but no backoff/retry or rate-limit handling is drawn. If the external site throttles or blocks the scraper, the entire pipeline goes silent with no monitoring box to catch it — and "scraper failures" is already called out as a maintainer worry on your own poster, so this isn't hypothetical.
+Week 3: This is the single most likely week-3 failure in the whole diagram: an external dependency that was stable during your initial audit changes shape mid-semester, and it's discovered only when someone notices stale menus, because nothing monitors Fetch.
+Merge conflicts: Fetch/Parse — once scraping breaks, everyone hotfixes the same file at once, usually right before a deadline.
+What's UNKNOWN because there's no box for it: auth/session handling, caching layer, load balancing/replica count, observability/alerting, and schema migration tooling. All five are things that either kill a group project at scale or turn into unowned code that everyone touches under pressure — but none of them are boxes on this diagram, so I can't cite a failure mode for them beyond "doesn't exist yet."
+
+The one that survives scrutiny and goes in the report: the Business Logic box. It's the only box on the diagram that visibly merges two independently-owned milestones (M2/M3 filtering and M4 crowd reports) into one module with no internal seam drawn. Every other risk above is a "this will probably bite you." This one is a "this is already structurally set up to bite you" — the diagram itself shows two features sharing one file before a line of code exists.
