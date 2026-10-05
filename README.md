@@ -12,6 +12,7 @@ how busy each location is.
 
 ```
 proj_1b/    Project 1b — requirements
+proj_2/     Project 2 — implementation (Next.js + FastAPI + Postgres)
 ```
 
 ## 🎓 Course
