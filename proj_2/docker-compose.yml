@@ -6,7 +6,8 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-packplate}
       POSTGRES_DB: ${POSTGRES_DB:-packplate}
     ports:
-      - "5432:5432"
+      # Host port; set POSTGRES_PORT in .env if 5432 is taken (e.g. a local Postgres).
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
 

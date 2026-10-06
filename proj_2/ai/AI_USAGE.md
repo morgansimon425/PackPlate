@@ -17,6 +17,8 @@ changed, and how the result was checked.
 - Generating project scaffolding and boilerplate (see
   [01-scaffolding](artifacts/01-scaffolding.md))
 - Explaining course requirements and tooling options
+- Porting a prototype into production code, finding its bugs, and writing
+  tests (see [02-ingestion](artifacts/02-ingestion.md))
 - _TODO: add as the project goes (e.g. first drafts of tests, PR review)_
 
 ## What we do not use AI for
@@ -42,3 +44,4 @@ changed, and how the result was checked.
 | # | Artifact | Author | Date |
 |---|---|---|---|
 | 01 | [Project 2 scaffolding](artifacts/01-scaffolding.md) | Whole team | 2026-10-05 |
+| 02 | [Ingestion pipeline](artifacts/02-ingestion.md) | Ethan Goodman | 2026-10-06 |
