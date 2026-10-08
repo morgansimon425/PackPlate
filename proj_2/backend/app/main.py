@@ -2,17 +2,23 @@
 
 Layers (see proj_1b report, Figure 1):
     api/           presentation  - HTTP routes, one file per feature
-    services/      business logic - filter engine, crowd aggregation
-    repositories/  data access   - the only layer that talks to Postgres
+    schemas/       response models shared by routes
+    services/      business logic - hours, filter engine, crowd aggregation
+    repositories/  data access   - the only layer that queries Postgres
+
+The tables live in proj_2/db (shared with ingestion), so proj_2/ must be on
+the Python path: see the README.
 """
 
 import os
 
-import psycopg
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
 
-from app.api import crowd, filters, locations
+from app.api import crowd, filters, locations, meta
+from app.deps import get_engine
+from db.migrate import check_current
 
 app = FastAPI(title="PackPlate API")
 
@@ -24,16 +30,27 @@ app.add_middleware(
 )
 
 app.include_router(locations.router)
+app.include_router(meta.router)
 app.include_router(filters.router)
 app.include_router(crowd.router)
 
 
 @app.get("/health")
 def health():
-    """Report whether the API is up and whether it can reach the database."""
+    """Whether the API is up, can reach the database, and has the expected schema.
+
+    schema is "current", "outdated" (run the Alembic migrations), or null
+    when the database is unreachable.
+    """
     try:
-        with psycopg.connect(os.environ["DATABASE_URL"], connect_timeout=2):
-            db = "ok"
+        engine = get_engine()
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
     except Exception:
-        db = "unreachable"
-    return {"status": "ok", "db": db}
+        return {"status": "ok", "db": "unreachable", "schema": None}
+    try:
+        check_current(engine)
+        schema = "current"
+    except RuntimeError:
+        schema = "outdated"
+    return {"status": "ok", "db": "ok", "schema": schema}

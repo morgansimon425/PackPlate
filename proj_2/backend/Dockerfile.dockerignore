@@ -1,0 +1,6 @@
+# Used instead of a .dockerignore because the build context is proj_2/.
+*
+!backend/requirements.txt
+!backend/app
+!db
+**/__pycache__

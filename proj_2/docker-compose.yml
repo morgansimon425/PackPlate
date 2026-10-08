@@ -12,7 +12,9 @@ services:
       - pgdata:/var/lib/postgresql/data
 
   backend:
-    build: ./backend
+    build:
+      context: .                     # proj_2/, so the image can include db/
+      dockerfile: backend/Dockerfile
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-packplate}:${POSTGRES_PASSWORD:-packplate}@db:5432/${POSTGRES_DB:-packplate}
       FRONTEND_ORIGIN: http://localhost:3000
