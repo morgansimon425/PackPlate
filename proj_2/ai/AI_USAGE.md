@@ -9,7 +9,7 @@ changed, and how the result was checked.
 
 | Tool | Model / version | Used by | Where it runs |
 |---|---|---|---|
-| Claude Code | Claude Opus 5.5 | Ethan | VS Code extension |
+| Claude Code | Claude Opus 5.5 | Ethan, Moe | VS Code extension |
 | _TODO_ | | | |
 
 ## What we use AI for
@@ -17,6 +17,8 @@ changed, and how the result was checked.
 - Generating project scaffolding and boilerplate (see
   [01-scaffolding](artifacts/01-scaffolding.md))
 - Explaining course requirements and tooling options
+- Porting a prototype into production code, finding its bugs, and writing
+  tests (see [02-ingestion](artifacts/02-ingestion.md))
 - _TODO: add as the project goes (e.g. first drafts of tests, PR review)_
 
 ## What we do not use AI for
@@ -42,3 +44,5 @@ changed, and how the result was checked.
 | # | Artifact | Author | Date |
 |---|---|---|---|
 | 01 | [Project 2 scaffolding](artifacts/01-scaffolding.md) | Whole team | 2026-10-05 |
+| 02 | [Ingestion pipeline](artifacts/02-ingestion.md) | Ethan Goodman | 2026-10-06 |
+| 03 | [Backend database connection and read API](artifacts/03-backend-read-api.md) | Moe Ko | 2026-10-07 |
