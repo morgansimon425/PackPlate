@@ -18,15 +18,21 @@ proj_2/
 ├── backend/                FastAPI (Python)
 │   ├── app/
 │   │   ├── main.py         app setup, router wiring, GET /health
+│   │   ├── deps.py         database session per request
 │   │   ├── api/            routes, one file per feature
-│   │   │   ├── locations.py
+│   │   │   ├── locations.py    /locations, /locations/{id}, /locations/{id}/menus
+│   │   │   ├── meta.py         /freshness
 │   │   │   ├── filters.py
 │   │   │   └── crowd.py
-│   │   ├── services/       business logic
+│   │   ├── schemas/        Pydantic response models
+│   │   ├── services/       business logic (no database)
+│   │   │   ├── hours.py        open now?, past-midnight windows
+│   │   │   ├── menus.py        meal ordering
+│   │   │   ├── freshness.py    stale-data rule
 │   │   │   ├── filter_engine.py
 │   │   │   └── crowd.py
 │   │   └── repositories/   data access (only layer that queries Postgres)
-│   └── tests/              pytest
+│   └── tests/              pytest; API tests need TEST_DATABASE_URL
 │
 ├── ingestion/              scraper job: fetch → parse → normalize → write
 │   ├── config.py           source URLs, politeness, cache age
@@ -81,16 +87,28 @@ If port 5432 is already taken (e.g. a local Postgres install), set
 `POSTGRES_PORT=5433` in `.env` and use 5433 in `DATABASE_URL` /
 `TEST_DATABASE_URL`.
 
-Backend:
+Backend (run from `proj_2/`, so both `backend/app` and the shared `db/` import):
 
 ```bash
-cd backend
-python -m venv .venv
-source .venv/bin/activate      # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
+python -m venv backend/.venv
+source backend/.venv/bin/activate      # Windows: backend\.venv\Scripts\activate
+pip install -r backend/requirements.txt
 export DATABASE_URL=postgresql://packplate:packplate@localhost:5432/packplate
-uvicorn app.main:app --reload
+python -m uvicorn app.main:app --app-dir backend --reload
 ```
+
+| Endpoint | Returns |
+|---|---|
+| `GET /health` | API up; database `ok` / `unreachable`; schema `current` / `outdated` |
+| `GET /freshness` | when ingestion last finished (`ok` or `partial`), and `stale` if that was over 36 h ago (`STALE_AFTER_HOURS`) |
+| `GET /locations` | every location: today's hours, `is_open`, `closes_at`, `opens_next_at` |
+| `GET /locations/{id}` | the same, plus 7 days of hours and the menus listed from today on |
+| `GET /locations/{id}/menus?date=YYYY-MM-DD` | every menu that day (default today) with items, allergens, diets, and nutrition |
+
+Time-dependent routes take `?at=2026-10-06T12:00:00-04:00` (default now, campus
+time), so you can check "open at noon" without waiting for noon. Unknown stays
+unknown: `is_open: null` means today's hours aren't known, and `nutrition: null`
+means the item has no label, so its allergens come from icons only.
 
 Frontend:
 
@@ -132,13 +150,10 @@ The `menus_changed` stat shows how often menus really change.
 Known source limits: "Contains Nuts" covers peanuts and tree nuts, and
 "Contains Seafood" covers fish and shellfish; the source can't tell them apart.
 
-> When the API starts reading these tables, `backend/Dockerfile` must also copy
-> `db/` (it currently copies only `app/`).
-
 ## 🧪 Tests
 
 ```bash
-cd backend && pytest          # API
+cd backend && pytest          # API; DB tests need TEST_DATABASE_URL
 cd .. && pytest ingestion     # pipeline (run from proj_2/); DB tests need TEST_DATABASE_URL
 cd frontend && npm run lint   # frontend
 ```
