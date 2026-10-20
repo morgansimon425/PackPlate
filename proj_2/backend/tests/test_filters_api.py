@@ -100,7 +100,9 @@ def test_group_ranks_where_everyone_fits_first(client, seed, fountain):
     seed.menu(21, 2, TUE, "Lunch")
     seed.nutrition("2|tofu|1 each", location_id=2, protein_g=20)
     seed.item(21, "Tofu", nutrition_key="2|tofu|1 each", diets=["vegan"])
-    seed.location(3, "Atrium", None)  # no menus, hours unknown
+    seed.location(3, "Atrium", None)  # no menu today, hours unknown
+    seed.menu(31, 3, date(2026, 10, 7), "Lunch")
+    seed.item(31, "Pizza")
     seed.menu(13, 1, date(2026, 10, 7), "Lunch")  # another day: not counted
     seed.item(13, "Tomorrow's Soup", diets=["vegan"])
 

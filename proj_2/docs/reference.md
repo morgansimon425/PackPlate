@@ -312,7 +312,11 @@ Queries for locations and their hours. Read-only: ingestion writes these tables.
 def list_locations(db: Session) -> list[Location]
 ```
 
-Every location, sorted by name.
+Locations that have ever had a menu with items, sorted by name.
+
+NetNutrition lists some cafés that never publish menus (or only long-stale
+ones). They're left out of every page. Their hours are still scraped, and a
+location appears as soon as one of its menus has items.
 
 ### `get_location`
 

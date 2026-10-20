@@ -5,12 +5,23 @@ from datetime import date
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from db.models import HoursDay, Location
+from db.models import HoursDay, Location, Menu, MenuItem
 
 
 def list_locations(db: Session) -> list[Location]:
-    """Every location, sorted by name."""
-    return list(db.scalars(select(Location).order_by(Location.name)))
+    """Locations that have ever had a menu with items, sorted by name.
+
+    NetNutrition lists some cafés that never publish menus (or only long-stale
+    ones). They're left out of every page. Their hours are still scraped, and a
+    location appears as soon as one of its menus has items.
+    """
+    has_items = (
+        select(Menu.location_id)
+        .join(MenuItem, MenuItem.menu_id == Menu.id)
+        .where(Menu.location_id == Location.id)
+        .exists()
+    )
+    return list(db.scalars(select(Location).where(has_items).order_by(Location.name)))
 
 
 def get_location(db: Session, location_id: int) -> Location | None:

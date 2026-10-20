@@ -57,6 +57,9 @@ def test_one_report_per_client_and_location_per_minute(client, seed):
 def test_locations_show_recent_crowd_level(client, seed):
     seed.location(1)
     seed.location(2, "Case Dining Hall", "case")
+    for location_id, menu_id in ((1, 31), (2, 32)):  # listed: has menu data
+        seed.menu(menu_id, location_id, NOON.date(), "Lunch")
+        seed.item(menu_id, "Soup")
     seed.crowd(1, "crowded", NOON - timedelta(minutes=10))
     seed.crowd(1, "crowded", NOON - timedelta(minutes=3))
     seed.crowd(2, "crowded", NOON - timedelta(hours=2))  # too old
