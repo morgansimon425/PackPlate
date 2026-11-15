@@ -95,9 +95,9 @@ function ProfileForm({ initial }: { initial: Profile }) {
           Where is this kept?
         </h2>
         <p className="help">
-          Only in this browser on this device. PackPlate has no accounts and
-          doesn’t store your diet on its servers. It’s sent along when you check
-          a menu so the check can be done, and then it’s forgotten.
+          Only in this browser on this device, even if you have an account.
+          PackPlate doesn’t store your diet on its servers. It’s sent along when
+          you check a menu so the check can be done, and then it’s forgotten.
         </p>
       </section>
     </>

@@ -18,19 +18,23 @@ proj_2/
 ├── backend/                FastAPI (Python)
 │   ├── app/
 │   │   ├── main.py         app setup, router wiring, GET /health
-│   │   ├── deps.py         database session per request
+│   │   ├── deps.py         database session per request; current_user / optional_user
 │   │   ├── api/            routes, one file per feature
 │   │   │   ├── locations.py    /locations, /locations/{id}, /locations/{id}/menus
 │   │   │   ├── meta.py         /freshness
 │   │   │   ├── filters.py      /filters/locations/{id}/menus, /filters/group
-│   │   │   └── crowd.py        /crowd/{id}
+│   │   │   ├── crowd.py        /crowd/{id}
+│   │   │   ├── auth.py         /auth/register, /auth/login, /auth/logout, /auth/me
+│   │   │   └── chat_room.py    /chat/rooms, /chat/invitations, /chat/open-to-chat (M4)
 │   │   ├── schemas/        Pydantic response models
 │   │   ├── services/       business logic (no database)
 │   │   │   ├── hours.py        open now?, past-midnight windows
 │   │   │   ├── menus.py        meal ordering
 │   │   │   ├── freshness.py    stale-data rule
 │   │   │   ├── filter_engine.py  fits / conflicts / incomplete rules
-│   │   │   └── crowd.py        crowd level from recent reports, report throttle
+│   │   │   ├── crowd.py        crowd level from recent reports, report throttle
+│   │   │   ├── auth.py         username/password rules, session tokens, login limiter
+│   │   │   └── passwords.py    scrypt password hashing
 │   │   └── repositories/   data access (only layer that queries Postgres)
 │   └── tests/              pytest; API tests need TEST_DATABASE_URL
 │
@@ -56,7 +60,8 @@ proj_2/
   separate route and service files so they don't collide.
 - **Routes stay thin.** Logic goes in `services/`, SQL goes in `repositories/`.
 - **Single writer per table.** `ingestion/` writes locations, hours, menus,
-  items, nutrition, and ingest runs; the API writes crowd reports only. Each
+  items, nutrition, and ingest runs; the API writes crowd reports, users, and
+  sessions. Each
   model in `db/models.py` names its writer.
 - **Schema changes go through Alembic.** Edit `db/models.py`, then
   `alembic -c db/alembic.ini revision --autogenerate -m "what changed"`, review
@@ -107,6 +112,11 @@ python -m uvicorn app.main:app --app-dir backend --reload
 | `POST /filters/locations/{id}/menus?date=` | the same menus, each item checked against every profile in the body: `fits`, `conflicts`, or `incomplete`, with reasons |
 | `POST /filters/group?at=` | every location for a group: per profile how many items fit, and `everyone_fits`; ranked everyone-fits first, then open, then name |
 | `POST /crowd/{id}` | body `{"level": "not_busy" \| "moderate" \| "crowded"}`; returns the new crowd level (201), or 429 if this client reported this location in the last minute |
+| `POST /auth/register` | body `{"username", "password"}`; creates an account and logs in (201), 400 if not allowed, 409 if taken |
+| `POST /auth/login` | same body; logs in (sets the session cookie), 401 if wrong, 429 after 10 failed tries in 15 min |
+| `POST /auth/logout` | ends this browser's session (204) |
+| `GET /auth/me` | the logged-in account `{id, username, open_to_chat, created_at}`, or 401. `PATCH` with `{"open_to_chat": bool}` changes that setting (off by default); `DELETE` with `{"password"}` deletes the account |
+| `/chat/...` | group chat for logged-in users (401 otherwise): rooms, invitations, messages, and the Open to Chat list; see `docs/api.md` |
 
 Time-dependent routes take `?at=2026-10-06T12:00:00-04:00` (default now, campus
 time), so you can check "open at noon" without waiting for noon. Unknown stays

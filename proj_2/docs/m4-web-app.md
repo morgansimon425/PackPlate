@@ -20,7 +20,7 @@ This is what the demo and both videos show.
 | My Dietary Profile | Allergies and dietary preferences | Used by the two filter endpoints |
 | Eat as a Group | Several profiles; locations where everyone can eat | `POST /filters/group` |
 | How Busy Is It? | Each location's crowd level, and a way to report | `POST /crowd/{id}`, `crowd` in `GET /locations` |
-| Login / Signup | — | No backend yet |
+| Login / Signup | Username and password; an account page to log out or delete it | `/auth/*` (M1, see [m1-accounts.md](m1-accounts.md)) |
 
 ## Must get right
 
@@ -46,6 +46,10 @@ report's privacy stakeholders. Options:
 
 Option 1 delivers the same experience with far less risk and work.
 
+**Decided (2026-11-09, M1):** both. Accounts exist (username and password
+only) for features that need to know who you are, like group chat, but the
+dietary profile still stays in the browser. See [m1-accounts.md](m1-accounts.md).
+
 ## Checklist
 
 - [x] Wireframes for every page
@@ -57,7 +61,7 @@ Option 1 delivers the same experience with far less risk and work.
 - [ ] My Dietary Profile page
 - [ ] Eat as a Group page
 - [ ] How Busy Is It? page
-- [ ] Login decision made (no accounts, or accounts that store profiles)
+- [x] Login decision made: accounts, but profiles stay in the browser (M1)
 - [ ] `incomplete` items never shown as safe, with their reasons visible
 - [ ] Data freshness shown, with a warning when stale
 - [ ] TypeScript types generated from the API, not hand-written (`types.ts`

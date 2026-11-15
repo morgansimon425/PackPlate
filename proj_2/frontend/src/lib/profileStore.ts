@@ -1,8 +1,9 @@
 "use client";
 
-// The dietary profile lives in this browser only (localStorage). PackPlate has
-// no accounts: the profile is sent to the API in a request body when you filter
-// a menu, and the server never stores it.
+// The dietary profile lives in this browser only (localStorage), even for
+// logged-in users: accounts store a username and password hash, nothing else.
+// The profile is sent to the API in a request body when you filter a menu, and
+// the server never stores it.
 import { useMemo, useSyncExternalStore } from "react";
 import { parseProfile } from "./diet";
 import type { Profile } from "./types";

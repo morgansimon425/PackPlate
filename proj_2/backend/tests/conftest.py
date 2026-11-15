@@ -14,9 +14,11 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import make_url, text
 
+from app.api.auth import get_login_limiter
 from app.api.crowd import get_throttle
 from app.deps import get_db
 from app.main import app
+from app.services.auth import LoginLimiter
 from app.services.crowd import Throttle
 from db.migrate import upgrade
 from db.models import (
@@ -86,10 +88,13 @@ def db(pg_engine):
 
 @pytest.fixture
 def client(db):
-    """The API, reading from the test database, with a fresh crowd-report throttle."""
+    """The API, reading from the test database, with a fresh crowd-report throttle
+    and failed-login limiter."""
     throttle = Throttle(60)
+    limiter = LoginLimiter()
     app.dependency_overrides[get_db] = lambda: db
     app.dependency_overrides[get_throttle] = lambda: throttle
+    app.dependency_overrides[get_login_limiter] = lambda: limiter
     yield TestClient(app)
     app.dependency_overrides.clear()
 

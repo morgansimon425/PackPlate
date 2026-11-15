@@ -13,6 +13,24 @@ Every endpoint and data model of the PackPlate API, read from the API's own Open
 - [`POST /filters/locations/{location_id}/menus`](#post-filterslocationslocation_idmenus)
 - [`POST /filters/group`](#post-filtersgroup)
 - [`POST /crowd/{location_id}`](#post-crowdlocation_id)
+- [`POST /auth/register`](#post-authregister)
+- [`POST /auth/login`](#post-authlogin)
+- [`POST /auth/logout`](#post-authlogout)
+- [`GET /auth/me`](#get-authme)
+- [`DELETE /auth/me`](#delete-authme)
+- [`PATCH /auth/me`](#patch-authme)
+- [`GET /chat/rooms`](#get-chatrooms)
+- [`POST /chat/rooms`](#post-chatrooms)
+- [`GET /chat/rooms/{room_id}`](#get-chatroomsroom_id)
+- [`POST /chat/rooms/{room_id}/leave`](#post-chatroomsroom_idleave)
+- [`GET /chat/invitations`](#get-chatinvitations)
+- [`POST /chat/invitations/{invitation_id}/accept`](#post-chatinvitationsinvitation_idaccept)
+- [`POST /chat/invitations/{invitation_id}/decline`](#post-chatinvitationsinvitation_iddecline)
+- [`GET /chat/rooms/{room_id}/messages`](#get-chatroomsroom_idmessages)
+- [`POST /chat/rooms/{room_id}/messages`](#post-chatroomsroom_idmessages)
+- [`GET /chat/users/{username}`](#get-chatusersusername)
+- [`GET /chat/open-to-chat`](#get-chatopen-to-chat)
+- [`PUT /chat/open-to-chat`](#put-chatopen-to-chat)
 - [`GET /health`](#get-health)
 
 ### `GET /locations`
@@ -119,6 +137,212 @@ One report per location per client every CROWD_REPORT_COOLDOWN_SECONDS (429 othe
 | 201 Successful Response | [Crowd](#crowd) |
 | 422 Validation Error | [HTTPValidationError](#httpvalidationerror) |
 
+### `POST /auth/register`
+
+Create an account and log in. 400 if the username or password isn't allowed,
+409 if the username is taken. Usernames are case-insensitive.
+
+**Request body:** [Credentials](#credentials)
+
+| Response | Body |
+|---|---|
+| 201 Successful Response | [UserOut](#userout) |
+| 422 Validation Error | [HTTPValidationError](#httpvalidationerror) |
+
+### `POST /auth/login`
+
+Log in. 401 for a wrong username or password (the message doesn't say which),
+429 after too many failed tries for one username.
+
+**Request body:** [Credentials](#credentials)
+
+| Response | Body |
+|---|---|
+| 200 Successful Response | [UserOut](#userout) |
+| 422 Validation Error | [HTTPValidationError](#httpvalidationerror) |
+
+### `POST /auth/logout`
+
+Log this browser out. Succeeds even if it wasn't logged in.
+
+| Response | Body |
+|---|---|
+| 204 Successful Response |  |
+
+### `GET /auth/me`
+
+The logged-in account. 401 when logged out.
+
+| Response | Body |
+|---|---|
+| 200 Successful Response | [UserOut](#userout) |
+
+### `DELETE /auth/me`
+
+Delete the logged-in account and everything tied to it. Needs the password.
+
+**Request body:** [PasswordConfirm](#passwordconfirm)
+
+| Response | Body |
+|---|---|
+| 204 Successful Response |  |
+| 422 Validation Error | [HTTPValidationError](#httpvalidationerror) |
+
+### `PATCH /auth/me`
+
+Change the logged-in account's settings: {"open_to_chat": true | false}.
+
+**Request body:** [AccountSettings](#accountsettings)
+
+| Response | Body |
+|---|---|
+| 200 Successful Response | [UserOut](#userout) |
+| 422 Validation Error | [HTTPValidationError](#httpvalidationerror) |
+
+### `GET /chat/rooms`
+
+Return the rooms the current user has joined.
+
+| Response | Body |
+|---|---|
+| 200 Successful Response | list of [ChatRoomOut](#chatroomout) |
+
+### `POST /chat/rooms`
+
+Create a pending room from the selected account IDs.
+
+400 if the creator invites themselves, 404 if an invited account doesn't exist.
+
+**Request body:** [ChatRoomCreate](#chatroomcreate)
+
+| Response | Body |
+|---|---|
+| 201 Successful Response | [ChatRoomOut](#chatroomout) |
+| 422 Validation Error | [HTTPValidationError](#httpvalidationerror) |
+
+### `GET /chat/rooms/{room_id}`
+
+Return the room's status and joined members.
+
+| Parameter | In | Type | Required | Default |
+|---|---|---|---|---|
+| `room_id` | path | integer | yes |  |
+
+| Response | Body |
+|---|---|
+| 200 Successful Response | [ChatRoomOut](#chatroomout) |
+| 422 Validation Error | [HTTPValidationError](#httpvalidationerror) |
+
+### `POST /chat/rooms/{room_id}/leave`
+
+Remove the current member and update the room status.
+
+| Parameter | In | Type | Required | Default |
+|---|---|---|---|---|
+| `room_id` | path | integer | yes |  |
+
+| Response | Body |
+|---|---|
+| 204 Successful Response |  |
+| 422 Validation Error | [HTTPValidationError](#httpvalidationerror) |
+
+### `GET /chat/invitations`
+
+Return the current user's pending invitations.
+
+| Response | Body |
+|---|---|
+| 200 Successful Response | list of [ChatInvitationOut](#chatinvitationout) |
+
+### `POST /chat/invitations/{invitation_id}/accept`
+
+Accept the current user's invitation and return the updated room.
+
+| Parameter | In | Type | Required | Default |
+|---|---|---|---|---|
+| `invitation_id` | path | integer | yes |  |
+
+| Response | Body |
+|---|---|
+| 200 Successful Response | [ChatRoomOut](#chatroomout) |
+| 422 Validation Error | [HTTPValidationError](#httpvalidationerror) |
+
+### `POST /chat/invitations/{invitation_id}/decline`
+
+Decline the current user's invitation.
+
+| Parameter | In | Type | Required | Default |
+|---|---|---|---|---|
+| `invitation_id` | path | integer | yes |  |
+
+| Response | Body |
+|---|---|
+| 204 Successful Response |  |
+| 422 Validation Error | [HTTPValidationError](#httpvalidationerror) |
+
+### `GET /chat/rooms/{room_id}/messages`
+
+Return message history for a current member, even if the room is inactive.
+
+| Parameter | In | Type | Required | Default |
+|---|---|---|---|---|
+| `room_id` | path | integer | yes |  |
+
+| Response | Body |
+|---|---|
+| 200 Successful Response | list of [ChatMessageOut](#chatmessageout) |
+| 422 Validation Error | [HTTPValidationError](#httpvalidationerror) |
+
+### `POST /chat/rooms/{room_id}/messages`
+
+Save the text with the signed-in sender and return the saved message.
+
+| Parameter | In | Type | Required | Default |
+|---|---|---|---|---|
+| `room_id` | path | integer | yes |  |
+
+**Request body:** [ChatMessageCreate](#chatmessagecreate)
+
+| Response | Body |
+|---|---|
+| 201 Successful Response | [ChatMessageOut](#chatmessageout) |
+| 422 Validation Error | [HTTPValidationError](#httpvalidationerror) |
+
+### `GET /chat/users/{username}`
+
+Find another account by exact username, ignoring case.
+
+Returns the account ID and username even if Open to Chat is off.
+400 for an invalid username or 404 when no other account matches.
+
+| Parameter | In | Type | Required | Default |
+|---|---|---|---|---|
+| `username` | path | string | yes |  |
+
+| Response | Body |
+|---|---|
+| 200 Successful Response | [OpenToChatPerson](#opentochatperson) |
+| 422 Validation Error | [HTTPValidationError](#httpvalidationerror) |
+
+### `GET /chat/open-to-chat`
+
+Everyone else with Open to Chat on, by username.
+
+| Response | Body |
+|---|---|
+| 200 Successful Response | list of [OpenToChatPerson](#opentochatperson) |
+
+### `PUT /chat/open-to-chat`
+
+Show or hide the current user on the Open to Chat list (off by default).
+
+**Request body:** [OpenToChatUpdate](#opentochatupdate)
+
+| Response | Body |
+|---|---|
+| 200 Successful Response | [OpenToChatOut](#opentochatout) |
+| 422 Validation Error | [HTTPValidationError](#httpvalidationerror) |
+
 ### `GET /health`
 
 Whether the API is up, can reach the database, and has the expected schema.
@@ -131,6 +355,74 @@ when the database is unreachable.
 | 200 Successful Response |  |
 
 ## Data models
+
+### AccountId
+
+### AccountSettings
+
+Settings the logged-in user can change. Extra fields are rejected.
+
+| Field | Type | Required |
+|---|---|---|
+| `open_to_chat` | boolean | yes |
+
+### ChatInvitationOut
+
+A pending invitation the signed-in user can accept or decline.
+
+| Field | Type | Required |
+|---|---|---|
+| `id` | integer | yes |
+| `room_id` | integer | yes |
+
+### ChatMessageCreate
+
+The text a member sends to an active Chat Room.
+
+| Field | Type | Required |
+|---|---|---|
+| `text` | string | yes |
+
+### ChatMessageOut
+
+A saved message with its sender and the UTC time it was sent.
+
+| Field | Type | Required |
+|---|---|---|
+| `id` | integer | yes |
+| `text` | string | yes |
+| `sender_id` | [AccountId](#accountid) or null | yes |
+| `created_at` | string (date-time) | yes |
+
+### ChatRoomCreate
+
+The user IDs the creator sends when starting a Chat Room.
+
+| Field | Type | Required |
+|---|---|---|
+| `invitee_ids` | list of [AccountId](#accountid) | yes |
+
+### ChatRoomOut
+
+A Chat Room and the users who have joined it.
+
+| Field | Type | Required |
+|---|---|---|
+| `id` | integer | yes |
+| `status` | [RoomStatus](#roomstatus) | yes |
+| `member_ids` | list of [AccountId](#accountid) | yes |
+
+### Credentials
+
+A username and password, for signing up or logging in. Extra fields are rejected.
+
+Lengths are checked loosely here and properly in services.auth, so the
+error message can say what's wrong.
+
+| Field | Type | Required |
+|---|---|---|
+| `username` | string | yes |
+| `password` | string | yes |
 
 ### Crowd
 
@@ -332,6 +624,39 @@ An item's nutrition label from NetNutrition. Values it doesn't give are null, no
 | `ingredient_flags` | object | yes |
 | `fetched_at` | string (date-time) | yes |
 
+### OpenToChatOut
+
+The signed-in user's Open to Chat setting after a change.
+
+| Field | Type | Required |
+|---|---|---|
+| `open_to_chat` | boolean | yes |
+
+### OpenToChatPerson
+
+The ID and username of an account that can be invited to a Chat Room.
+
+| Field | Type | Required |
+|---|---|---|
+| `id` | [AccountId](#accountid) | yes |
+| `username` | string | yes |
+
+### OpenToChatUpdate
+
+The setting a signed-in user sends to turn Open to Chat on or off.
+
+| Field | Type | Required |
+|---|---|---|
+| `open_to_chat` | boolean | yes |
+
+### PasswordConfirm
+
+The current password, to confirm deleting the account.
+
+| Field | Type | Required |
+|---|---|---|
+| `password` | string | yes |
+
 ### Period
 
 One opening period, from opens_at to closes_at (campus time).
@@ -366,6 +691,19 @@ For one profile at one location: how many items fit, are incomplete, or conflict
 | `fits` | integer | yes |
 | `incomplete` | integer | yes |
 | `conflicts` | integer | yes |
+
+### RoomStatus
+
+### UserOut
+
+The signed-in account. Never includes the password hash.
+
+| Field | Type | Required |
+|---|---|---|
+| `id` | integer | yes |
+| `username` | string | yes |
+| `open_to_chat` | boolean | yes |
+| `created_at` | string (date-time) | yes |
 
 ### ValidationError
 

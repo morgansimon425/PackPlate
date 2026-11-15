@@ -965,3 +965,172 @@ legend {
 .stack .stack {
   gap: 0.75rem;
 }
+
+/* ---------- group chat ---------- */
+
+.chat-layout {
+  display: grid;
+  gap: 1rem;
+  align-items: start;
+}
+
+.chat-rooms,
+.chat-conversation,
+.chat-setup {
+  min-width: 0;
+}
+
+@media (min-width: 780px) {
+  .chat-layout {
+    grid-template-columns: minmax(15rem, 1fr) minmax(0, 2fr);
+    grid-template-areas:
+      "rooms conversation"
+      "setup conversation";
+  }
+
+  .chat-rooms {
+    grid-area: rooms;
+  }
+
+  .chat-conversation {
+    grid-area: conversation;
+  }
+
+  .chat-setup {
+    grid-area: setup;
+  }
+}
+
+.chat-room-button {
+  width: 100%;
+  justify-content: space-between;
+  text-align: left;
+}
+
+.chat-room-button[aria-pressed="true"] {
+  border-color: var(--teal);
+  background: #edf6f7;
+}
+
+.chat-create > summary {
+  cursor: pointer;
+}
+
+.chat-create > .stack {
+  margin-top: 0.75rem;
+}
+
+.chat-directory {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.5rem;
+}
+
+.chat-log {
+  max-height: 24rem;
+  overflow-y: auto;
+  padding: 0.75rem;
+  border-radius: 8px;
+  background: var(--page);
+}
+
+.chat-message {
+  justify-self: start;
+  width: fit-content;
+  max-width: 90%;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+  overflow-wrap: anywhere;
+}
+
+.chat-message-own {
+  justify-self: end;
+  background: #edf6f7;
+}
+
+.chat-message-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.7rem;
+  font-size: 0.83rem;
+}
+
+.chat-message-meta time {
+  color: var(--muted);
+}
+
+.chat-message p {
+  white-space: pre-wrap;
+}
+
+.chat-message-input {
+  color: inherit;
+  font: inherit;
+  resize: vertical;
+}
+
+/* ---------- account link in the header ---------- */
+
+.nav a.nav-account {
+  font-weight: 700;
+}
+
+@media (min-width: 960px) {
+  .nav a.nav-account {
+    margin-left: 0.5rem;
+    border: 2px solid currentColor;
+    border-radius: 999px;
+  }
+}
+
+/* M5: Side-by-side meal comparison */
+.comparison-table {
+  max-width: none;
+  width: 100%;
+  background: var(--paper);
+}
+
+.comparison-table th,
+.comparison-table td {
+  padding: 0.8rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.comparison-table thead th {
+  text-align: left;
+  vertical-align: top;
+}
+
+.comparison-table tbody td {
+  text-align: center;
+}
+
+/* M5: Dietary preference information */
+.comparison-profile-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.75rem;
+  padding: 0.9rem 1rem;
+  background: var(--neutral-bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+}
+
+.comparison-profile-note p {
+  color: var(--muted);
+}
+
+.comparison-profile-note a {
+  color: var(--red);
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.comparison-profile-note a:hover {
+  color: var(--red-dark);
+}

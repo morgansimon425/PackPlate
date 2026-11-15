@@ -3,6 +3,10 @@
 //
 // Set NEXT_PUBLIC_API_URL in .env.local to override the local dev server.
 import type {
+  ChatInvitation,
+  ChatMessage,
+  ChatPerson,
+  ChatRoom,
   Crowd,
   CrowdLevel,
   Freshness,
@@ -12,6 +16,9 @@ import type {
   LocationSummary,
   Menu,
   Profile,
+  User,
+  RecommendationRequest,
+  RecommendationResponse
 } from "./types";
 
 export const API_URL =
@@ -33,11 +40,20 @@ export class ApiError extends Error {
   }
 }
 
-async function request<T>(path: string, body?: unknown): Promise<T> {
+// Every call sends the session cookie (credentials: "include"), so routes that
+// need a logged-in user just work. The cookie is HttpOnly: page code never sees it.
+async function request<T>(
+  path: string,
+  body?: unknown,
+  method: "GET" | "POST" | "PATCH" | "DELETE" = body === undefined
+    ? "GET"
+    : "POST",
+): Promise<T> {
   let response: Response;
   try {
     response = await fetch(`${API_URL}${path}`, {
-      method: body === undefined ? "GET" : "POST",
+      method,
+      credentials: "include",
       headers:
         body === undefined ? undefined : { "Content-Type": "application/json" },
       body: body === undefined ? undefined : JSON.stringify(body),
@@ -72,6 +88,7 @@ async function request<T>(path: string, body?: unknown): Promise<T> {
       Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter : null,
     );
   }
+  if (response.status === 204) return undefined as T;
   return (await response.json()) as T;
 }
 
@@ -84,6 +101,9 @@ function query(params: Record<string, string | undefined>): string {
 }
 
 export const api = {
+  recommendations: (options: RecommendationRequest) =>
+    request<RecommendationResponse>("/recommendations", options),
+
   freshness: () => request<Freshness>("/freshness"),
 
   locations: () => request<LocationSummary[]>("/locations"),
@@ -107,6 +127,50 @@ export const api = {
 
   reportCrowd: (id: number, level: CrowdLevel) =>
     request<Crowd>(`/crowd/${id}`, { level }),
+
+  // Accounts. Use lib/session.ts in components: it keeps the header in sync.
+  register: (username: string, password: string) =>
+    request<User>("/auth/register", { username, password }),
+
+  login: (username: string, password: string) =>
+    request<User>("/auth/login", { username, password }),
+
+  logout: () => request<void>("/auth/logout", {}),
+
+  me: () => request<User>("/auth/me"),
+
+  setOpenToChat: (open_to_chat: boolean) =>
+    request<User>("/auth/me", { open_to_chat }, "PATCH"),
+
+  deleteAccount: (password: string) =>
+    request<void>("/auth/me", { password }, "DELETE"),
+
+  chatRooms: () => request<ChatRoom[]>("/chat/rooms"),
+
+  chatInvitations: () => request<ChatInvitation[]>("/chat/invitations"),
+
+  openToChatPeople: () => request<ChatPerson[]>("/chat/open-to-chat"),
+
+  chatPerson: (username: string) =>
+    request<ChatPerson>(`/chat/users/${encodeURIComponent(username)}`),
+
+  createChatRoom: (invitee_ids: number[]) =>
+    request<ChatRoom>("/chat/rooms", { invitee_ids }),
+
+  acceptChatInvitation: (id: number) =>
+    request<ChatRoom>(`/chat/invitations/${id}/accept`, undefined, "POST"),
+
+  declineChatInvitation: (id: number) =>
+    request<void>(`/chat/invitations/${id}/decline`, undefined, "POST"),
+
+  chatMessages: (roomId: number) =>
+    request<ChatMessage[]>(`/chat/rooms/${roomId}/messages`),
+
+  sendChatMessage: (roomId: number, text: string) =>
+    request<ChatMessage>(`/chat/rooms/${roomId}/messages`, { text }),
+
+  leaveChatRoom: (roomId: number) =>
+    request<void>(`/chat/rooms/${roomId}/leave`, undefined, "POST"),
 };
 
 export function errorMessage(error: unknown): string {

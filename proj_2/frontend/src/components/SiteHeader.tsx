@@ -3,12 +3,15 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { useSession } from "@/lib/session";
 
 const LINKS = [
   { href: "/home", label: "Home" },
   { href: "/locations", label: "What’s open" },
   { href: "/menus", label: "Menus" },
+  { href: "/compare", label: "Compare Meals" },
   { href: "/group", label: "Eat as a group" },
+  { href: "/chat", label: "Group Chat" },
   { href: "/busy", label: "How busy" },
   { href: "/profile", label: "My diet" },
   { href: "/", label: "About" },
@@ -17,6 +20,14 @@ const LINKS = [
 export function SiteHeader() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const session = useSession();
+  // Nothing while loading or offline, so the link doesn't flicker or lie.
+  const account =
+    session.status === "signed_in"
+      ? { href: "/account", label: session.user.username }
+      : session.status === "signed_out"
+        ? { href: "/login", label: "Log in" }
+        : null;
 
   return (
     <header className="site-header">
@@ -50,6 +61,16 @@ export function SiteHeader() {
               {link.label}
             </Link>
           ))}
+          {account ? (
+            <Link
+              href={account.href}
+              className="nav-account"
+              aria-current={pathname === account.href ? "page" : undefined}
+              onClick={() => setOpen(false)}
+            >
+              {account.label}
+            </Link>
+          ) : null}
         </nav>
       </div>
     </header>

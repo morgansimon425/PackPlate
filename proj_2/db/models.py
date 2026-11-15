@@ -3,7 +3,8 @@
 Single writer per table (proj_1b report, Figure 1):
     ingestion/  writes locations, hours_days, menus, menu_items, nutrition, ingest_runs,
                 label_reviews
-    backend/    reads those; writes only crowd_reports
+    backend/    reads those; writes crowd_reports, users, auth_sessions, and the
+                chat tables (chat_models.py)
 
 Unknown stays unknown: a NULL nutrient or a missing label means "not published",
 never zero or safe.
@@ -12,6 +13,7 @@ never zero or safe.
 from datetime import date, datetime
 
 from sqlalchemy import (
+    Boolean,
     CheckConstraint,
     Date,
     DateTime,
@@ -21,6 +23,7 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
+    false,
     func,
 )
 from sqlalchemy.dialects.postgresql import JSONB
@@ -257,3 +260,63 @@ class LabelReview(Base):
     decided_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     decided_by: Mapped[str | None] = mapped_column(String(100))
     reason: Mapped[str | None] = mapped_column(Text)
+
+
+class User(Base):
+    """A PackPlate account. Writer: backend (the API).
+
+    Only a username, a password hash, and the Open to Chat setting are stored:
+    no email, no real name, and no dietary profile (that stays in the browser).
+    open_to_chat (off by default) is whether the user appears in chat's list of
+    people to invite. username is stored
+    lowercased, so "Wolf" and "wolf" are the same account. Other features
+    (chat, preferences) should reference users.id with ON DELETE CASCADE, so
+    deleting an account deletes everything tied to it.
+    """
+
+    __tablename__ = "users"
+    __table_args__ = (
+        CheckConstraint("username = lower(username)", name="ck_users_username_lower"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    username: Mapped[str] = mapped_column(String(30), unique=True)
+    password_hash: Mapped[str] = mapped_column(String(255))  # see services/passwords
+    open_to_chat: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default=false()
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+    sessions: Mapped[list["AuthSession"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan", passive_deletes=True
+    )
+
+
+class AuthSession(Base):
+    """One signed-in browser. Writer: backend (the API).
+
+    The browser holds a random token in an HttpOnly cookie; only its SHA-256 is
+    stored here, so a leaked table can't be used to sign in. Logging out deletes
+    the row; a row past expires_at is treated as missing.
+    """
+
+    __tablename__ = "auth_sessions"
+
+    token_hash: Mapped[str] = mapped_column(String(64), primary_key=True)
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), index=True
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+    user: Mapped[User] = relationship(back_populates="sessions")
+
+
+# M4's chat tables live in their own file; importing it here puts them on
+# Base.metadata wherever the models are used (Alembic, the tests). At the bottom
+# because chat_models imports Base from this module.
+from db import chat_models  # noqa: E402, F401
